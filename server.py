@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request
+import json
+from pprint import pprint
 
 from queries import *
 
@@ -9,12 +11,16 @@ def index():
 	return render_template('index.html')
 
 @app.route('/search/', methods=['GET'])
-def getSummonerId():
+def getSummonerMasteries():
 	name = request.args.get('summoner', None)
-	summoner_id = get_summoner_id(name)
-	print(summoner_id)
-	if not summoner_id: return render_template('index.html'), 400
-	return str(summoner_id)
+	masteries = get_champion_masteries(name)
+	if not masteries: return render_template('index.html'), 400
+	s = ''.join(['<p>{}</p>'.format(mastery) for mastery in masteries])
+	return s
+
+@app.route('/champions')
+def getAllChampions():
+	return json.dumps(get_champions_dict())
 
 if __name__ == '__main__':
 	app.run()
