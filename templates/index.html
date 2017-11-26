@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Wordcount</title>
+    <title>LoLvis</title>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <style>
-      .container {
-        max-width: 1000px;
-      }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="//code.jquery.com/jquery-2.2.1.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
   </head>
   <body>
     <div class="container">
@@ -19,12 +21,28 @@
         </div>
         <button type="submit" class="btn btn-default">Submit</button>
       </form>
+      <button id="btn-jugle-deaths" class="btn btn-default" onclick="jungle_deaths()">Jungle Deaths</button>
+
       <br>
       {% for error in errors %}
         <h4>{{ error }}</h4>
       {% endfor %}
     </div>
-    <script src="//code.jquery.com/jquery-2.2.1.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <div class="graphics-container">
+      <div id='canvas-container'>
+        <img class='canvas-class' width="400" height="400" src="{{ url_for('static', filename='samuels_rif.png') }}"></img>
+        <canvas id='canvas' class='canvas-class' width="400" height="400"></canvas>
+      </div>
+      <div id="progress-bar">
+        <!---
+        <button id="player-button"></button>
+        <input id="time-slider" data-slider-id='timeSlider' type="range" data-slider-min="0" data-slider-max="0" data-slider-step="1" data-slider-value="0"/>
+        -->
+        <button id="player-button" onclick="startPlaying()"></button>
+        <div id="slidecontainer">
+          <input type="range" min="0" max="0" value="0" step="1" class="slider" id="myRange" onmousemove="onSlideChange()" onclick="pausePlaying()">
+        </div>
+      </div>
+    </div>
   </body>
 </html>

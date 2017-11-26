@@ -1,6 +1,8 @@
 import re
-
+import json
 import py_gg
+import requests
+import random
 from riotwatcher import RiotWatcher
 from api_key import API_KEY, GG_KEY
 
@@ -55,17 +57,33 @@ def get_roles_in_match(match_id):
 		for participant in match['participants']
 	}
 	return player_roles
+
+def get_jungle_deaths_in_gold():
+	with open('static/data/matches.json') as f:
+		matches = json.load(f)
+		random.shuffle(matches)
+		print('Getting match ids')
+		match_ids = [match['gameId'] for match in matches[:2]]
+		print('Getting jungle deaths')
+		jungle_deaths = []
+		for i in range(len(match_ids)):
+			print('Getting deaths in match {}/{}'.format(i+1, len(match_ids)), end='\r')
+			jungle_deaths += get_jungle_deaths_in_match(match_ids[i])
+		print('\n')
+		return jungle_deaths
+	return None
 	
 def get_jungle_deaths_in_match(match_id):
 	player_roles = get_roles_in_match(match_id)
 	junglers = [x for x in player_roles if player_roles[x] == 'JUNGLE']
 	timeline = watcher.match.timeline_by_match(my_region, match_id)
-	kill_events = [event for frame in timeline['frames'] for event in frame['events'] if event['type'] == 'CHAMPION_KILL']
+	kill_events = [event for frame in timeline['frames'] 
+					for event in frame['events'] if event['type'] == 'CHAMPION_KILL']
 	jungle_kills = filter(lambda kill: kill['victimId'] in junglers, kill_events)
 
 	return [{
 		'timestamp': kill['timestamp'],
 		'position': kill['position'],
-		'team': ('red' if kill['victimId'] <= 5 else 'blue')
+		'team': ('red' if kill['victimId'] > 5 else 'blue')
 	} for kill in jungle_kills]
 
