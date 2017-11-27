@@ -1,5 +1,6 @@
 import requests
 import json
+import os.path
 from riotwatcher import RiotWatcher
 from api_key import API_KEY, GG_KEY
 
@@ -41,19 +42,51 @@ def generate_gold_ranqued_matches():
 
 # generate_gold_ranqued_matches()
 
+def get_roles_in_match(match_id):
+	match = watcher.match.by_id(my_region, match_id)
+	player_roles = {
+		participant['participantId']: (participant['timeline']['lane'] if participant['timeline']['lane'] != 'BOTTOM' else participant['timeline']['role']) 
+		for participant in match['participants']
+	}
+	player_roles[0] = 'NONE'
+	return player_roles
+
 def generate_matches_deaths():
+	kill_events = {}
+
+	if os.path.isfile('static/data/kill_events.json'):
+		with open('static/data/kill_events.json') as deaths_file:
+			kill_events = json.load(deaths_file)
+
 	with open('static/data/matches.json') as matches_file:
 		matches  = json.load(matches_file)
 		print('Getting match ids')
 		match_ids = [match['gameId'] for match in matches]
+		roles = {}
 		print('Getting death events')
-		kill_events = {}
 		for i in range(len(match_ids)):
 			print('Fetching deaths from match: {}/{}'.format(i+1, len(match_ids)), end='\r')
-			timeline = watcher.match.timeline_by_match(my_region, match_ids[i])
-			kill_events[match_ids[i]] = [event for frame in timeline['frames'] for event in frame['events'] if event['type'] == 'CHAMPION_KILL']
+			if match_ids[i] not in kill_events:
+				roles = get_roles_in_match(match_ids[i])
+				timeline = watcher.match.timeline_by_match(my_region, match_ids[i])
+				kill_events[match_ids[i]] = [event for frame in timeline['frames'] for event in frame['events'] if event['type'] == 'CHAMPION_KILL']
+				for event in kill_events[match_ids[i]]:
+					event['killerRole'] = roles[event['killerId']]
+					event['victimRole'] = roles[event['victimId']]
+					event['victimTeam'] = 'blue' if event['victimId'] <= 5 else 'red'
+			if i % 100 == 0:
+				backup_deaths(kill_events)
 		print('\n')
-		with open('static/data/kill_events.json', 'w') as f:
-			json.dump(kill_events, f, indent='\t')
+		backup_deaths(kill_events)
 
-# generate_matches_deaths()
+def backup_deaths(kill_events):
+	cleaned = {}
+	for match_id in kill_events:
+		cleaned[match_id] = [
+								{ key: event[key] for key in ('killerRole', 'victimRole', 'timestamp', 'position', 'victimTeam')}
+							for event in kill_events[match_id]] 
+
+	with open('static/data/kill_events.json', 'w') as f:
+		json.dump(cleaned, f, indent='\t')
+
+generate_matches_deaths()

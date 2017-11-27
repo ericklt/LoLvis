@@ -41,8 +41,8 @@ def getChampWinrates():
 
 M_ID = 1243394779
 @app.route('/matches/deaths')
-def get_jungle_deaths():
-	return json.dumps(get_jungle_deaths_in_gold())
+def get_deaths():
+	return json.dumps(get_deaths_in_gold())
 
 if __name__ == '__main__':
 	app.run()

@@ -21,7 +21,7 @@
         </div>
         <button type="submit" class="btn btn-default">Submit</button>
       </form>
-      <button id="btn-jugle-deaths" class="btn btn-default" onclick="jungle_deaths()">Jungle Deaths</button>
+      <button id="btn-jugle-deaths" class="btn btn-default" onclick="loadDeaths()">Load Deaths</button>
 
       <br>
       {% for error in errors %}
@@ -38,7 +38,7 @@
         <button id="player-button"></button>
         <input id="time-slider" data-slider-id='timeSlider' type="range" data-slider-min="0" data-slider-max="0" data-slider-step="1" data-slider-value="0"/>
         -->
-        <button id="player-button" onclick="startPlaying()"></button>
+        <button id="player-button" onclick="playerButtonPress()"></button>
         <div id="slidecontainer">
           <input type="range" min="0" max="0" value="0" step="1" class="slider" id="myRange" onmousemove="onSlideChange()" onclick="pausePlaying()">
         </div>
