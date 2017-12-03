@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Champions Stats</title>
+    <link rel="stylesheet" href="css/dc.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/crossfilter.js" charset="utf-8"></script>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="js/dc.js" charset="utf-8"></script>
+
+</head>
+<body>
+     <div><h1> Champions Stats</h1>
+        <div id="winrate-chart"></div>
+        <div id="popular-chart"></div>
+    </div>
+    <script type="text/javascript"> 
+        // var winRateChart = dc.barChart('#winrate-chart');
+
+        // d3.json("champions.json", function(error, data){ 
+        //     //criando um crossfilter
+        //     var facts = crossfilter(data);
+
+        //     var yearDim = facts.dimension(function(d){
+        //         return d.Year;
+        //     });
+
+        //     var bilherteriaGroup = yearDim.group().reduceSum(function(d){
+        //         return d.Worldwide_Gross_M;
+        //     });
+        //     barChart.width(800)
+        //              .height(400)
+        //              .margins({top: 30, right: 50, bottom: 25, left: 40})
+        //              .dimension(yearDim)
+        //              .xUnits(dc.units.ordinal)
+        //              .x(d3.scale.ordinal())
+        //              .renderHorizontalGridLines(true)
+        //              .legend(dc.legend().x(650).y(10).itemHeight(13).gap(5))
+        //              .brushOn(false)
+        //              .group(bilherteriaGroup, 'Bilheteria');
+
+        //     dc.renderAll();
+        // });
+
+        var winRateChart = dc.barChart('#winrate-chart');
+
+        d3.json("champions.json", function(error, data){ 
+            //criando um crossfilter
+            var facts = crossfilter(data);
+
+            var championDim = facts.dimension(function(d){
+                return d.name;
+            });
+
+            var winRateGroup = championDim.group().reduceSum(function(d){
+                return d.winrate;
+            });
+
+            var sortChampions= data.sort(function (a, b) { return a.winrate < b.winrate; });
+            var champions = sortChampions.map(function (d) { return d.name; });
+
+            winRateChart.width(800)
+                     .height(400)
+                     .margins({top: 30, right: 50, bottom: 25, left: 40})
+                     .dimension(championDim)
+                     .y(d3.scale.linear().domain([0, 100]))
+                     .xUnits(dc.units.ordinal)
+                     .x(d3.scale.ordinal().domain(champions))
+                     .xAxisLabel("Champions")
+                     .yAxisLabel("Win Rate")
+                     .renderHorizontalGridLines(true)
+                     .legend(dc.legend().x(650).y(10).itemHeight(13).gap(5))
+                     .brushOn(false)
+                     .group(winRateGroup)
+                     .ordering(function(d) { return d.winrate; })
+                     .gap(100)
+                     .on('renderlet', function(chart) {
+                        chart.selectAll('rect').on("click", function(d) {
+                            console.log("go to page of champion", d);
+                        });
+
+                        chart.selectAll("rect")
+                        .append("text")
+                        .attr("text", function(d) { return d.winrate })
+                    });
+
+
+            dc.renderAll();
+        });
+    </script>           
+</body>
+</html>
