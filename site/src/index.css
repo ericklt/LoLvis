@@ -1,0 +1,81 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.top-bar {
+  background: #fff;
+  color: #fff;
+  -webkit-transition: all 0.2s ease-out 0s;
+  transition: all 0.2s ease-out 0s;
+  padding: 15px 0;
+  -webkit-box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #dedede;
+}
+.top-bar .navbar-nav > li > a:hover {
+  background: transparent;
+}
+.top-bar .animated-header {
+  padding: 20px 0;
+  background: #ffffff;
+  box-shadow: none;
+}
+.top-bar .main-menu li > a {
+  color: #444;
+}
+.top-bar .main-menu li {
+  position: relative;
+}
+.top-bar .main-menu li a {
+  font-size: 14px;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  -webkit-transition: .3s all;
+  -o-transition: .3s all;
+  transition: .3s all;
+  text-transform: uppercase;
+}
+.top-bar .main-menu li a:hover {
+  color: #02bdd5;
+}
+
+.navbar-header .navbar-brand {
+  padding: 5px 0;
+}
+
+.logo-img {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+}
+
+
+.champs {
+  margin-top:30px;
+}
+
+.champ {
+  margin: 10px;
+}
+
+.champ-img {
+  width: 150px !important;
+  height: auto !important;
+}
+
+.champ-title {
+  margin-top: 150px;
+  color: #032e33;
+}
+
+.champ-label {
+  text-align: center;
+}
+
+
+.page-titles {
+  margin-left: 30px;
+}
