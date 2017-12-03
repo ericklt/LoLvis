@@ -1,5 +1,6 @@
 * {
 	margin: 0;
+	padding: 0;
 }
 
 .container {
@@ -11,18 +12,68 @@
 
 .graphics-container {
 	margin-top: calc(50vh - 200px);
-	width: 400px;
+	width: 600px;
 	height: 400px;
 	display: inline-block;
 }
 
-#canvas-container {
-	width: 400px;
+#deaths-visualization {
+	width: 620px;
 	height: 400px;
 	display: block;
 	margin: 0 auto;
 	position: relative;
 }
+
+#canvas-container {
+	width: 400px;
+	height: 400px;
+	vertical-align: top;
+	display: inline-block;
+}
+
+/* -------------- Death charts --------------- */
+
+#deaths-chart {
+	width: 200px;
+	height: 400px;
+	vertical-align: top;
+	text-align: center;
+	display: inline-block;
+}
+
+.team-bar {
+	display: inline-block;
+	width: 80px;
+	height: 360px;
+	margin-left: 10px;
+	text-align: center;
+	vertical-align: bottom;
+}
+
+.death-bar {
+	border-radius: 3px;
+	width: 80px;
+	height: 150px;
+	position: absolute;
+	bottom: 0px;
+}
+
+#blue-bar {
+	background-color: rgba(0, 0, 255, 0.8);
+}
+
+#red-bar {
+	background-color: rgba(255, 0, 0, 0.8);
+}
+
+.team-span {
+	font-weight: bold;
+	position: relative;
+	top: -20px;
+}
+
+/* ------------------------------------------- */
 
 .canvas-class {
 	width: 400px;
@@ -38,12 +89,13 @@
 
 #progress-bar {
 	padding-top: 8px;
+	vertical-align: middle;
 }
 
 #time-slider {
 	display: inline-block;
 	margin-left: 4px;
-	width: calc(100% - 40px);
+	width: calc(100% - 100px);
 	background: #BABABA;
 }
 
@@ -55,7 +107,14 @@
 
 #slidecontainer {
 	display: inline-block;
-    width: calc(100% - 40px); /* Width of the outside container */
+    width: 360px; /* Width of the outside container */
+}
+
+#slider-time {
+	margin-top: 4px;
+	margin-left: 12px;
+	position: absolute;
+	display: inline-block;
 }
 
 /* The slider handle (use webkit (Chrome, Opera, Safari, Edge) and moz (Firefox) to override default look) */ 

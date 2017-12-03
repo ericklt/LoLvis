@@ -6,11 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
 
-    <script src="//code.jquery.com/jquery-2.2.1.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.2.1.min.js"></script>
+    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='lib/crossfilter.js') }}" charset="utf-8"></script>
+    <script type="text/javascript" src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='lib/dc.js') }}" charset="utf-8"></script>
   </head>
   <body>
     <div class="container">
@@ -21,7 +24,6 @@
         </div>
         <button type="submit" class="btn btn-default">Submit</button>
       </form>
-      <button id="btn-jugle-deaths" class="btn btn-default" onclick="loadDeaths()">Load Deaths</button>
 
       <br>
       {% for error in errors %}
@@ -29,9 +31,24 @@
       {% endfor %}
     </div>
     <div class="graphics-container">
-      <div id='canvas-container'>
-        <img class='canvas-class' width="400" height="400" src="{{ url_for('static', filename='samuels_rif.png') }}"></img>
-        <canvas id='canvas' class='canvas-class' width="400" height="400"></canvas>
+      <div id='deaths-visualization'>
+        <div id='canvas-container'>
+          <img class='canvas-class' width="400" height="400" src="{{ url_for('static', filename='images/samuels_rif.png') }}"></img>
+          <canvas id='canvas' class='canvas-class' width="400" height="400"></canvas>
+        </div>
+        <div id='deaths-chart'>
+          <h4>Mortes</h4>
+          <div class='team-bar'>
+            <div id='blue-bar' class='death-bar'>
+              <span id='blue-span' class='team-span'>0</span>
+            </div>
+          </div>
+          <div class='team-bar'>
+            <div id='red-bar' class='death-bar'>
+              <span id='red-span' class='team-span'>0</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div id="progress-bar">
         <!---
@@ -42,6 +59,7 @@
         <div id="slidecontainer">
           <input type="range" min="0" max="0" value="0" step="1" class="slider" id="myRange" onmousemove="onSlideChange()" onclick="pausePlaying()">
         </div>
+        <span id="slider-time">00:00</span>
       </div>
     </div>
   </body>
