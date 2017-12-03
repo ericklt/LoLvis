@@ -16,6 +16,10 @@
         <div id="popular-chart"></div>
     </div>
     <script type="text/javascript"> 
+        var winRateByName = d3.map();
+
+        // queue()
+        //     .defer(d3.json, "champions.json", function(d) { winRateByName.set(d.name, d.winrate); })
         // var winRateChart = dc.barChart('#winrate-chart');
 
         // d3.json("champions.json", function(error, data){ 
@@ -75,15 +79,45 @@
                      .group(winRateGroup)
                      .ordering(function(d) { return d.winrate; })
                      .gap(100)
-                     .on('renderlet', function(chart) {
-                        chart.selectAll('rect').on("click", function(d) {
-                            console.log("go to page of champion", d);
-                        });
+                     .label(function(d){
+                        return d.data.ley;
+                     })
+                     .on('renderlet', function(chart){
+                        var barsData = [];
+                        var bars = chart.selectAll('.bar').each(function(d) { barsData.push(d); });
+                        //Remove old values (if found)
+                        d3.select(bars[0][0].parentNode).select('#inline-labels').remove();
+                        //Create group for labels 
+                        var gLabels = d3.select(bars[0][0].parentNode).append('g').attr('id','inline-labels');
 
-                        chart.selectAll("rect")
-                        .append("text")
-                        .attr("text", function(d) { return d.winrate })
+                        for (var i = bars[0].length - 1; i >= 0; i--) {
+
+                            var b = bars[0][i];
+                            //Only create label if bar height is tall enough
+                            if (+b.getAttribute('height') < 18) continue;
+
+                            gLabels
+                                .append("text")
+                                .text(barsData[i].data.value)
+                                .attr('x', +b.getAttribute('x') + (b.getAttribute('width')/2) )
+                                .attr('y', +b.getAttribute('y') + 15)
+                                .attr('text-anchor', 'middle')
+                                .attr('fill', 'white');
+                        }
+
                     });
+                    //  .on('renderlet', function(chart) {
+                    //     chart.selectAll('rect').on("click", function(d) {
+                    //         console.log("go to page of champion", d);
+                    //     });
+
+                    //     chart.selectAll("rect")
+                    //     .append("span")
+                    //     .text(function(d) {
+                    //         console.log(JSON.stringify(d));
+                    //         return d3.select(d).data()[0].data.value;
+                    //     })
+                    // });
 
 
             dc.renderAll();
