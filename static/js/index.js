@@ -3,6 +3,7 @@ var ctx;
 
 var deaths;
 var max;
+var maxBlueDeaths, maxRedDeaths;
 var timeValue = 0;
 
 var isPlaying = false;
@@ -40,30 +41,35 @@ function SRposToCanvasXY(pos) {
 function processDeaths(text) {
 	deaths = JSON.parse(text);
 	max = 0
-    for (i in deaths)
-        max = Math.max(max, deaths[i].timestamp + 100000)
+    maxBlueDeaths = 0;
+    maxRedDeaths = 0;
+    for (i in deaths) {
+        item = deaths[i];
+        max = Math.max(max, item.timestamp + 100000)
+        if (item.victimTeam == 'blue') maxBlueDeaths++; else maxRedDeaths++;
+    }
     $('#myRange').attr('max', max);
     updateDeaths();
 }
 
-function updateDeathChart(blue_deaths, red_deaths) {
+function updateDeathChart(blueDeaths, redDeaths) {
 
     $('.team-span').css('font-weight', 'bold');
     $('.death-bar').css('opacity', '1');
 
-    new_blue = (blue_deaths == red_deaths)? 150 : 300 * blue_deaths / (blue_deaths + red_deaths);
-    new_red = (blue_deaths == red_deaths)? 150 : 300 * red_deaths / (blue_deaths + red_deaths);
+    new_blue = 10 + blueDeaths/maxBlueDeaths * 300;
+    new_red = 10 + redDeaths/maxRedDeaths * 300;
 
     $('#blue-bar').height(new_blue);
     $('#red-bar').height(new_red);
-    $('#blue-span').text(blue_deaths);
-    $('#red-span').text(red_deaths);
+    $('#blue-span').text(blueDeaths);
+    $('#red-span').text(redDeaths);
 
-    if (blue_deaths > red_deaths) {
+    if (blueDeaths > redDeaths) {
         $('#red-span').css('font-weight', 'normal');
         $('#red-bar').css('opacity', '0.7');
     } 
-    else if (blue_deaths < red_deaths) {
+    else if (blueDeaths < redDeaths) {
         $('#blue-span').css('font-weight', 'normal');
         $('#blue-bar').css('opacity', '0.7');
     }

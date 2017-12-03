@@ -54,7 +54,7 @@
 .death-bar {
 	border-radius: 3px;
 	width: 80px;
-	height: 150px;
+	height: 10px;
 	position: absolute;
 	bottom: 0px;
 }
