@@ -9,16 +9,15 @@ var timeValue = 0;
 var isPlaying = false;
 var playerSpeed = 1;
 
-window.onload = function() {
-    canvas = document.getElementById('canvas');
+var $ = require ('jquery');
+
+function deathsSetup() {
+  console.log('setup');
+    canvas = document.getElementsByClassName('canvas')[0];
     ctx = canvas.getContext('2d');
     loadDeaths();
     $('#myRange').mousedown(pausePlaying);
 }
-
-$("#myform").bind('ajax:complete', function(event) {
-	console.log(event)
-});
 
 function loadDeaths() {
 	httpGetAsync('/matches/deaths', processDeaths);
@@ -26,11 +25,11 @@ function loadDeaths() {
 
 function httpGetAsync(theUrl, callback) {
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
+    xmlHttp.onreadystatechange = function() {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
             callback(xmlHttp.responseText);
     }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous
     xmlHttp.send(null);
 }
 
@@ -39,12 +38,12 @@ function SRposToCanvasXY(pos) {
 }
 
 function processDeaths(text) {
-	deaths = JSON.parse(text);
-	max = 0
+  deaths = JSON.parse(text);
+	  max = 0
     maxBlueDeaths = 0;
     maxRedDeaths = 0;
-    for (i in deaths) {
-        item = deaths[i];
+    for (let i in deaths) {
+        let item = deaths[i];
         max = Math.max(max, item.timestamp + 100000)
         if (item.victimTeam == 'blue') maxBlueDeaths++; else maxRedDeaths++;
     }
@@ -57,8 +56,8 @@ function updateDeathChart(blueDeaths, redDeaths) {
     $('.team-span').css('font-weight', 'bold');
     $('.death-bar').css('opacity', '1');
 
-    new_blue = 10 + blueDeaths/maxBlueDeaths * 300;
-    new_red = 10 + redDeaths/maxRedDeaths * 300;
+    let new_blue = 10 + blueDeaths/maxBlueDeaths * 300;
+    let new_red = 10 + redDeaths/maxRedDeaths * 300;
 
     $('#blue-bar').height(new_blue);
     $('#red-bar').height(new_red);
@@ -68,7 +67,7 @@ function updateDeathChart(blueDeaths, redDeaths) {
     if (blueDeaths > redDeaths) {
         $('#red-span').css('font-weight', 'normal');
         $('#red-bar').css('opacity', '0.7');
-    } 
+    }
     else if (blueDeaths < redDeaths) {
         $('#blue-span').css('font-weight', 'normal');
         $('#blue-bar').css('opacity', '0.7');
@@ -78,8 +77,8 @@ function updateDeathChart(blueDeaths, redDeaths) {
 function updateDeaths() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let blues = 0, reds = 0;
-    for (i in deaths) {
-        item = deaths[i];
+    for (let i in deaths) {
+        let item = deaths[i];
         if (item.timestamp < timeValue)
             if (item.victimTeam == 'blue') blues++; else reds++;
         drawDeath(SRposToCanvasXY(item.position), item.victimTeam, item.timestamp);
@@ -90,7 +89,7 @@ function updateDeaths() {
 function drawDeath(pos, team, deathTime) {
     let time1 = -10000, time2 = 25000, time3 = 75000;
     let diff = timeValue - deathTime;
-    
+
     ctx.fillStyle = team == 'red' ? "rgba(255, 0, 0, 1)" : "rgba(0, 0, 255, 1)";
 
     if (diff > time1 && diff < 0) {
@@ -102,7 +101,7 @@ function drawDeath(pos, team, deathTime) {
         ctx.fill();
     } else if (diff >= 0 && diff < time2) {
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 5, 0, 2 * Math.PI); 
+        ctx.arc(pos.x, pos.y, 5, 0, 2 * Math.PI);
         ctx.fill();
         // let radius = 4 + 3 * diff/25000;
         // ctx.beginPath();

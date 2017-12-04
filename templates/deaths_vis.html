@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LoLvis</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.2.1.min.js"></script>
+    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/deaths_js.js') }}"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Summoner</h1>
+      <form role="form" method='GET' action='/search/'>
+        <div class="form-group">
+          <input type="text" name="summoner" class="form-control" id="url-box" placeholder="Enter Summoner Name" style="max-width: 300px;" autofocus required>
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+      </form>
+
+      <br>
+      {% for error in errors %}
+        <h4>{{ error }}</h4>
+      {% endfor %}
+    </div>
+    <div class="graphics-container">
+      <div id='deaths-visualization'>
+        <div id='canvas-container'>
+          <img class='canvas-class' width="400" height="400" src="{{ url_for('static', filename='images/samuels_rif.png') }}"></img>
+          <canvas id='canvas' class='canvas-class' width="400" height="400"></canvas>
+        </div>
+        <div id='deaths-chart'>
+          <h4>Mortes</h4>
+          <div class='team-bar'>
+            <div id='blue-bar' class='death-bar'>
+              <span id='blue-span' class='team-span'>0</span>
+            </div>
+          </div>
+          <div class='team-bar'>
+            <div id='red-bar' class='death-bar'>
+              <span id='red-span' class='team-span'>0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="progress-bar">
+        <!---
+        <button id="player-button"></button>
+        <input id="time-slider" data-slider-id='timeSlider' type="range" data-slider-min="0" data-slider-max="0" data-slider-step="1" data-slider-value="0"/>
+        -->
+        <button id="player-button" onclick="playerButtonPress()"></button>
+        <div id="slidecontainer">
+          <input type="range" min="0" max="0" value="0" step="1" class="slider" id="myRange" onmousemove="onSlideChange()" onclick="pausePlaying()">
+        </div>
+        <span id="slider-time">00:00</span>
+      </div>
+    </div>
+  </body>
+</html>

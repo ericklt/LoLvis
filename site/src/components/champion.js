@@ -1,7 +1,7 @@
 import React from 'react';
 
 class Champion extends React.Component {
-    
+
     render() {
         const name = this.props.match.params.name
         return (
@@ -11,7 +11,7 @@ class Champion extends React.Component {
                 </div>
                 <div className="champs">
                     <div className="col-md-3 col-sm-3">
-                        <img src={process.env.PUBLIC_URL + '/images/Champions_Icons/'+ name +'Square.png'} alt="champ_img" />
+                        <img src={"../static/images/Champions_Icons/" + name + "Square.png"} alt="champ_img" />
                     </div>
                     <div className="col-md-9 col-sm-9">
                         <p>BLAH BLAH BLAJ BLAH BLAH BLHA</p>
@@ -24,5 +24,5 @@ class Champion extends React.Component {
         );
     }
 }
-  
+
 export default Champion;

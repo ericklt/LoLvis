@@ -1,4 +1,6 @@
+import os.path
 from flask import Flask, render_template, request
+from flask_assets import Bundle, Environment
 import json
 from json2table import convert
 
@@ -6,14 +8,22 @@ from pprint import pprint
 
 from queries import *
 
+app = Flask(__name__)
+
+assets = Environment(app)
+
+app.config["REQUIREJS_BIN"] = os.path.dirname(__file__) + "/../node_modules/requirejs/bin/r.js"
+app.config["REQUIREJS_CONFIG"] = "build.js"
+app.config["REQUIREJS_RUN_IN_DEBUG"] = False
+
+debug = True
+
 def json_to_html(json):
 	json_object = {'table': json}
 	build_direction = "LEFT_TO_RIGHT"
 	table_attributes = {"style" : "width:100%"}
 	html = convert(json_object, build_direction=build_direction, table_attributes=table_attributes)
 	return html;
-
-app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -45,4 +55,6 @@ def get_deaths():
 	return json.dumps(get_deaths_in_gold())
 
 if __name__ == '__main__':
+	app.debug = debug
+	app.config["ASSETS_DEBUG"] = debug
 	app.run()

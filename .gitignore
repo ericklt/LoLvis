@@ -1,2 +1,4 @@
 api_key.py
 settings.json
+/site/node_modules
+/site/build
