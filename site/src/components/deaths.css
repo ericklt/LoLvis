@@ -6,7 +6,7 @@
 	display: inline-block;
 }
 
-.deaths-visualization {
+#deaths-visualization {
 	width: 620px;
 	height: 400px;
 	display: block;
@@ -14,7 +14,7 @@
 	position: relative;
 }
 
-.canvas-container {
+#canvas-container {
 	width: 400px;
 	height: 400px;
 	vertical-align: top;
@@ -23,7 +23,7 @@
 
 /* -------------- Death charts --------------- */
 
-.deaths-chart {
+#deaths-chart {
 	width: 200px;
 	height: 400px;
 	vertical-align: top;
@@ -48,11 +48,11 @@
 	bottom: 0px;
 }
 
-.blue-bar {
+#blue-bar {
 	background-color: rgba(0, 0, 255, 0.8);
 }
 
-.red-bar {
+#red-bar {
 	background-color: rgba(255, 0, 0, 0.8);
 }
 
@@ -72,34 +72,37 @@
 	left: 0px;
 }
 
-.canvas {
+#canvas {
 	z-index: 10;
 }
 
-.progress-bar {
+#progress-bar {
+	width: 400px;
+	height: 45px;
 	padding-top: 8px;
 	vertical-align: middle;
 }
 
-.time-slider {
+#time-slider {
 	display: inline-block;
 	margin-left: 4px;
 	width: calc(100% - 100px);
 	background: #BABABA;
 }
 
-.player-button {
+#player-button {
 	display: inline-block;
 	width: 30px;
 	height: 30px;
 }
 
-.slidecontainer {
+#slidecontainer {
 	display: inline-block;
-    width: 360px; /* Width of the outside container */
+	margin-left: 10px;
+  width: 300px; /* Width of the outside container */
 }
 
-.slider-time {
+#slider-time {
 	margin-top: 4px;
 	margin-left: 12px;
 	position: absolute;
