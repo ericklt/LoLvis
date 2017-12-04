@@ -8,6 +8,7 @@
     <script src="js/crossfilter.js" charset="utf-8"></script>
     <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="js/dc.js" charset="utf-8"></script>
+    <script src="https://d3js.org/queue.v1.min.js"></script>
 
 </head>
 <body>
@@ -18,8 +19,9 @@
     <script type="text/javascript"> 
         var winRateByName = d3.map();
 
-        // queue()
-        //     .defer(d3.json, "champions.json", function(d) { winRateByName.set(d.name, d.winrate); })
+        queue()
+            //.defer(d3.json, "champions.json", function(d) { winRateByName.set(d.name, d.winrate); })
+            .defer(d3.json, "champions.json", function(d) { winRateByName.set(d.name, d.winrate); })
         // var winRateChart = dc.barChart('#winrate-chart');
 
         // d3.json("champions.json", function(error, data){ 
@@ -82,7 +84,9 @@
                      .label(function(d){
                         return d.data.ley;
                      })
+                     .ordinalColors("#21282D")
                      .on('renderlet', function(chart){
+                        //https://stackoverflow.com/questions/25026010/show-values-on-top-of-bars-in-a-barchart
                         var barsData = [];
                         var bars = chart.selectAll('.bar').each(function(d) { barsData.push(d); });
                         //Remove old values (if found)
@@ -93,14 +97,36 @@
                         for (var i = bars[0].length - 1; i >= 0; i--) {
 
                             var b = bars[0][i];
+
+                            //IMAGE
+                            //https://gist.github.com/mygoare/10340316
+                            gLabels
+                                .append('svg:image')
+                                .attr({
+                                  'xlink:href': 'icons_champions/'+barsData[i].data.key+'.png',  // can also add svg file here
+                                  x: 0,
+                                  y: 0,
+                                  width: 64,
+                                  height: 64
+                                })
+                                .attr('x', +b.getAttribute('x') + (b.getAttribute('width')/2) - 32 )
+                                .attr('y', +b.getAttribute('y') - 64 - 15 )
+                                .attr('text-anchor', 'middle')
+                                .attr('fill', 'red')
+                                .on('click',function(d){
+                                    console.log(JSON.stringify(d));
+                                    d3.select(barsData[i].parentNode)
+                                });
+
                             //Only create label if bar height is tall enough
                             if (+b.getAttribute('height') < 18) continue;
 
+                            //TEXT
                             gLabels
                                 .append("text")
                                 .text(barsData[i].data.value)
                                 .attr('x', +b.getAttribute('x') + (b.getAttribute('width')/2) )
-                                .attr('y', +b.getAttribute('y') + 15)
+                                .attr('y', +b.getAttribute('y') + 24 )
                                 .attr('text-anchor', 'middle')
                                 .attr('fill', 'white');
                         }
