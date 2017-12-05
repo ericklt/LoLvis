@@ -45,7 +45,7 @@ def get_champ_winrates():
 	all_champ = get_champ_stats()
 	champ_name_dict = get_champId_to_name_dict()
 	return [{
-			'name': champ_name_dict[entry['_id']['championId']], 
+			'name': champ_name_dict[entry['_id']['championId']],
 			'role': entry['_id']['role'],
 			'winrate': entry['winRate']
 			} for entry in all_champ]
@@ -53,7 +53,7 @@ def get_champ_winrates():
 def get_roles_in_match(match_id):
 	match = watcher.match.by_id(my_region, match_id)
 	player_roles = {
-		participant['participantId']: (participant['timeline']['lane'] if participant['timeline']['lane'] != 'BOTTOM' else participant['timeline']['role']) 
+		participant['participantId']: (participant['timeline']['lane'] if participant['timeline']['lane'] != 'BOTTOM' else participant['timeline']['role'])
 		for participant in match['participants']
 	}
 	return player_roles
@@ -64,8 +64,7 @@ def get_deaths_in_gold():
 		deaths = []
 		for match_id in matches_kills:
 			kill_events = matches_kills[match_id]
-			filtered_kills = [x for x in kill_events if x['victimRole'] == 'DUO_CARRY']
-			deaths += [{ key: kill[key] for key in ('timestamp', 'position', 'victimTeam') } for kill in filtered_kills]
+			# filtered_kills = [x for x in kill_events if x['victimRole'] == 'DUO_CARRY']
+			deaths += [{ key: kill[key] for key in ('timestamp', 'position', 'victimTeam', 'victimRole') } for kill in kill_events]
 		return deaths
 	return None
-

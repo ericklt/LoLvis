@@ -1,24 +1,41 @@
+#super-container {
+	text-align: center;
+	overflow-y: hidden;
+}
 
 .graphics-container {
-	margin-top: calc(50vh - 200px);
-	width: 600px;
-	height: 400px;
+	text-align: center;
+	margin-top: calc(50vh - 220px);
+	width: 620px;
+	height: 500px;
 	display: inline-block;
 }
 
 #deaths-visualization {
 	width: 620px;
-	height: 400px;
+	height: 500px;
 	display: block;
-	margin: 0 auto;
 	position: relative;
+}
+
+#animation-container {
+	display: inline-block;
+	width: 400px;
+	height: 480px;
+}
+
+#role-selection-container {
+	width: 400px;
+	text-align: center;
 }
 
 #canvas-container {
 	width: 400px;
 	height: 400px;
 	vertical-align: top;
+	margin-top: 20px;
 	display: inline-block;
+	position: relative;
 }
 
 /* -------------- Death charts --------------- */
@@ -26,13 +43,16 @@
 #deaths-chart {
 	width: 200px;
 	height: 400px;
+	margin-top: 50px;
 	vertical-align: top;
 	text-align: center;
+	position: relative;
 	display: inline-block;
 }
 
 .team-bar {
 	display: inline-block;
+	position: relative;
 	width: 80px;
 	height: 360px;
 	margin-left: 10px;
@@ -79,6 +99,7 @@
 #progress-bar {
 	width: 400px;
 	height: 45px;
+	text-align: left;
 	padding-top: 8px;
 	vertical-align: middle;
 }
@@ -92,14 +113,24 @@
 
 #player-button {
 	display: inline-block;
+	padding: 0;
 	width: 30px;
 	height: 30px;
+	vertical-align: top;
+}
+
+#play-button-icon {
+	margin-top: 2px;
+	margin-left: 2px;
+	width: 20px;
+	height: 20px;
 }
 
 #slidecontainer {
 	display: inline-block;
 	margin-left: 10px;
-  width: 300px; /* Width of the outside container */
+	margin-top: 8px;
+  width: 310px; /* Width of the outside container */
 }
 
 #slider-time {
