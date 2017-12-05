@@ -39,17 +39,9 @@ def get_champions_dict():
 	return d
 
 def get_champ_stats():
-	return py_gg.champions.all()
-
-def get_champ_winrates():
-	all_champ = get_champ_stats()
-	champ_name_dict = get_champId_to_name_dict()
-	return [{
-			'name': champ_name_dict[entry['_id']['championId']],
-			'role': entry['_id']['role'],
-			'winrate': entry['winRate']
-			} for entry in all_champ]
-
+	with open('static/data/champ_stats.json') as f:
+		return json.load(f)
+	
 def get_roles_in_match(match_id):
 	match = watcher.match.by_id(my_region, match_id)
 	player_roles = {

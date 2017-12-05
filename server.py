@@ -41,13 +41,9 @@ def getSummonerMasteries():
 def getAllChampions():
 	return json.dumps(get_champions_dict())
 
-@app.route('/champ_stats/all')
+@app.route('/champ_stats')
 def getChampStats():
 	return json.dumps(get_champ_stats());
-
-@app.route('/champ_stats/winrates')
-def getChampWinrates():
-	return json_to_html(get_champ_winrates())
 
 M_ID = 1243394779
 @app.route('/matches/deaths')
