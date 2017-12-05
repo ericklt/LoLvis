@@ -1,11 +1,10 @@
 import React from 'react';
+import General from './components/general'
 
 class Home extends React.Component {
   render() {
     return(
-      <div className="container champ-title">
-        <h1>SEJA BEM VINDO!</h1>
-      </div>
+      <General />
     );
   }
 }
