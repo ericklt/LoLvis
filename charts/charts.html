@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Champions Stats</title>
+    <link rel="stylesheet" href="css/dc.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/crossfilter.js" charset="utf-8"></script>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="js/dc.js" charset="utf-8"></script>
+    <script src="https://d3js.org/queue.v1.min.js"></script>
+    <style>
+        #tooltip {
+          position: absolute;
+          width: 240px;
+          height: auto;
+          padding: 10px;
+          background-color: white;
+          -webkit-border-radius: 10px;
+          -moz-border-radius: 10px;
+          border-radius: 10px;
+          -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+          -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+          box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+          pointer-events: none;
+        }
+
+        #tooltip.hidden {
+          display: none;
+        }
+
+        #tooltip p {
+          margin: 0;
+          font-family: sans-serif;
+          font-size: 16px;
+          line-height: 20px;
+        }
+
+    </style>
+
+</head>
+<body>
+     <div>
+        <h4> Champions Win Rate Rank</h4>
+        <div id="winrate-chart"></div>
+        <h4> Champions Popularity Rank</h4>
+        <div id="popular-chart"></div>
+        <!-- <h4> Popularity Vayne by time</h4>
+        <div id="time-chart"></div> -->
+        <h4> Popularity By Win Rate</h4>
+        <div id="win-pop-scater"></div>
+        <div id="tooltip" class="hidden">
+            <p><b><span id="name-scatter"></b></span>
+            <p>Win Rate: <span id="win-info-scatter"></span></p>
+            <p>Popular.: <span id="pop-info-scatter"></span></p>
+        </div>
+    </div>
+    <script type="text/javascript"> 
+        
+        var colorBarchart = ["#1E2226"];
+        var sizeIconChampion = 64;
+        var gapWinRate = 50;
+
+        var winPopByName = d3.map();
+        queue()
+            .defer(d3.json, "champions.json", function(d) { winPopByName.set(d.name, [+d.winrate,+d.popularity]); })
+
+        var winRateChart = dc.barChart('#winrate-chart');
+        var popularChart = dc.barChart('#popular-chart');
+        var timeChart = dc.lineChart('#time-chart');
+        var winPopScaterPlot = dc.scatterPlot("#win-pop-scater");
+
+        d3.json("champions.json", function(error, data){ 
+            //criando um crossfilter
+            var facts = crossfilter(data);
+
+            var championDim = facts.dimension(function(d){
+                return d.name;
+            });
+
+            var winRateGroup = championDim.group().reduceSum(function(d){
+                return d.winrate;
+            });
+
+            var sortChampions= data.sort(function (a, b) { return a.winrate < b.winrate; });
+            var champions = sortChampions.map(function (d) { return d.name; });
+
+            //WIN RATE
+            winRateChart
+                .width(800)
+                .height(400)
+                .margins({top: 50, right: 50, bottom: 50, left: 50})
+                .dimension(championDim)
+                .y(d3.scale.linear().domain([0, 100]))
+                .xUnits(dc.units.ordinal)
+                .x(d3.scale.ordinal().domain(champions))
+                .xAxisLabel("Champions")
+                .yAxisLabel("Win Rate (%)")
+                .renderHorizontalGridLines(true)
+                .brushOn(false)
+                .group(winRateGroup)
+                .ordering(function(d) { return d.winrate; })
+                .gap(gapWinRate)
+                .ordinalColors(colorBarchart)
+                .on('renderlet', setLabelsIcons);
+            winRateChart.render();
+
+            var popularGroup = championDim.group().reduceSum(function(d){
+                return d.popularity;
+            });     
+
+            var sortChampions= data.sort(function (a, b) { return a.popularity < b.popularity; });
+            var champions = sortChampions.map(function (d) { return d.name; });
+
+            //POPULARITY
+            popularChart
+                .width(800)
+                .height(400)
+                .margins({top: 50, right: 50, bottom: 50, left: 50})
+                .dimension(championDim)
+                .y(d3.scale.linear().domain([0, 100]))
+                .xUnits(dc.units.ordinal)
+                .x(d3.scale.ordinal().domain(champions))
+                .xAxisLabel("Champions")
+                .yAxisLabel("Popularity (%)")
+                .renderHorizontalGridLines(true)
+                .brushOn(false)
+                .group(popularGroup)
+                .ordering(function(d) { return d.winrate; })
+                .gap(gapWinRate)
+                .ordinalColors(colorBarchart)
+                .on('renderlet', setLabelsIcons);
+            popularChart.render();
+
+            var winDim = facts.dimension(function(d){
+                return d.winrate;
+            });
+
+            var winMin = +winDim.bottom(1)[0].winrate;
+            var winMax = +winDim.top(1)[0].winrate;
+
+            var popDim = facts.dimension(function(d){
+                return d.popularity;
+            });
+
+            var popMin = +popDim.bottom(1)[0].popularity;
+            var popMax = +popDim.top(1)[0].popularity;
+
+            //console.log(winMin+","+winMax+","+popMin+","+popMax);
+
+            var dimScaterplot = facts.dimension(function (d) {
+                return [+d.popularity,+d.winrate, d,name];
+            });
+            var groupScaterplot = dimScaterplot.group();
+
+            var border = 2;
+            winPopScaterPlot.width(700)
+                .height(700)
+                .margins({top: 50, right: 50, bottom: 50, left: 50})
+                .y(d3.scale.linear().domain([winMin-border, winMax+border]))
+                .x(d3.scale.linear().domain([popMin-border, popMax+border]))
+                .yAxisLabel("Win Rate")
+                .xAxisLabel("Popularity")
+                .brushOn(false)
+                .clipPadding(10)
+                .dimension(dimScaterplot)
+                .excludedOpacity(0.5)
+                .group(groupScaterplot)
+                .symbolSize(8)
+                .on('renderlet', setDotsIconScatter);
+            winPopScaterPlot.render();
+        });
+
+        // d3.csv("timepop.csv", function(error, data){
+
+        //     var facts = crossfilter(data);
+
+        //     var monthDimension = facts.dimension(function(d){
+        //           return +d.month;
+        //       });
+
+        //     var monthGroup = monthDimension.group().reduceSum(function(d){
+        //         return +d.pop;
+        //     });     
+        //     //TIME POPULARITY
+        //     timeChart.width(800)
+        //         .height(400)
+        //         .transitionDuration(500)
+        //         .margins({top: 50, right: 50, bottom: 50, left: 50})
+        //         .dimension(monthDimension)
+        //         .group(monthGroup)
+        //         .brushOn(false)
+        //         .elasticY(true)
+        //         .x(d3.scale.linear().domain([8,12]))
+        //         .renderArea(true)
+        //         .renderDataPoints(true)
+        //         .round(d3.time.month.round)
+        //         .xUnits(d3.time.months)
+        //         .xAxisLabel("Time")
+        //         .yAxisLabel("Popularity (%)")
+        //         .ordinalColors(colorBarchart)
+        //         .on('renderlet', setLabelsTime);
+        //     timeChart.render();
+        // });
+
+
+        function setLabelsIcons(chart){
+
+            //ON CLICK BAR
+            chart.selectAll('rect').on("click", function(d) {
+                    console.log("go to page of champion", d);
+                });
+
+            //LABEL AND ICON
+            //https://stackoverflow.com/questions/25026010/show-values-on-top-of-bars-in-a-barchart
+            var barsData = [];
+            var bars = chart.selectAll('.bar').each(function(d) { barsData.push(d); });
+            //Remove old values (if found)
+            d3.select(bars[0][0].parentNode).select('#inline-labels').remove();
+            //Create group for labels 
+            var gLabels = d3.select(bars[0][0].parentNode).append('g').attr('id','inline-labels');
+
+            for (var i = bars[0].length - 1; i >= 0; i--) {
+
+                var b = bars[0][i];
+
+                //ICON IMAGE
+                //https://gist.github.com/mygoare/10340316
+                gLabels
+                    .append('svg:image')
+                    .attr({
+                      'xlink:href': 'icons_champions/'+barsData[i].data.key+'.png',
+                      x: 0,
+                      y: 0,
+                      width: sizeIconChampion,
+                      height: sizeIconChampion
+                    })
+                    .attr('x', +b.getAttribute('x') + (b.getAttribute('width')/2) - sizeIconChampion/2 )
+                    .attr('y', +b.getAttribute('y') - sizeIconChampion - 16 )
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', 'red')
+                    .on('click',function(d){
+                        //console.log(JSON.stringify(d));
+                        //action click -> go to page
+                        d3.select(b).on('click')();
+                    });
+
+                //Only create label if bar height is tall enough
+                if (+b.getAttribute('height') < 18) continue;
+
+                //TEXT LABEL
+                gLabels
+                    .append("text")
+                    .text(Number(barsData[i].data.value).toFixed(1)+"%")
+                    .attr('x', +b.getAttribute('x') + (b.getAttribute('width')/2) )
+                    .attr('y', +b.getAttribute('y') + 24 )
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', 'white');
+            }
+        }
+
+        function setLabelsTime(chart){
+            //LABEL AND ICON
+            //https://stackoverflow.com/questions/25026010/show-values-on-top-of-bars-in-a-barchart
+            var dotsData = [];
+            var dots = chart.selectAll('.dot').each(function(d) { dotsData.push(d); });
+            //Remove old values (if found)
+            d3.select(dots[0][0].parentNode).select('#inline-labels').remove();
+            //Create group for labels 
+            var gLabels = d3.select(dots[0][0].parentNode).append('g').attr('id','inline-labels');
+
+            for (var i = dots[0].length - 1; i >= 0; i--) {
+
+                var b = dots[0][i];
+                //console.log(JSON.stringify(b));
+                //console.log(dotsData[i].x+" "+dotsData[i].y);
+                //TEXT LABEL
+                gLabels
+                    .append("text")
+                    .text(Number(dotsData[i].data.value).toFixed(1)+"%")
+                    .attr('x', +dotsData[i].x)
+                    .attr('y', +dotsData[i].y)
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', colorBarchart);
+            }
+        }
+
+        function setDotsIconScatter(chart){
+            var sizeIcon = 64;
+            //ON CLICK BAR
+            chart.selectAll('path').on("click", function(d) {
+                    console.log("go to page of champion", );
+                });
+
+            var posData = [];
+            chart.selectAll('path').each(function(d,i) {
+                    //console.log(this);
+                    var trans = d3.select(this).attr('transform')+"";
+                    if(trans!="null"){
+                        //console.log(trans);
+                        var pos = trans.substr(trans.indexOf("("),trans.indexOf(")")).split(",");
+                        //console.log(pos);
+                        posData.push(pos);
+                    }
+                });
+
+            //LABEL AND ICON
+            //https://stackoverflow.com/questions/25026010/show-values-on-top-of-bars-in-a-barchart
+            var dotsData = [];
+            var dots = chart.selectAll('.symbol').each(function(d) { dotsData.push(d); });
+            //Remove old values (if found)
+            d3.select(dots[0][0].parentNode).select('#inline-labels').remove();
+            //Create group for labels 
+            var gLabels = d3.select(dots[0][0].parentNode).append('g').attr('id','inline-labels');
+
+            for (var i = dots[0].length - 1; i >= 0; i--) {
+
+                var b = dots[0][i];
+                //console.log(JSON.stringify(this));
+                //ICON IMAGE
+                //https://gist.github.com/mygoare/10340316
+                gLabels
+                    .append('svg:image')
+                    .attr({
+                      'id':dotsData[i].key[2].name,
+                      'win':dotsData[i].key[0],
+                      'pop':dotsData[i].key[1],
+                      'xlink:href': 'icons_champions/'+dotsData[i].key[2].name+'.png',
+                      x: 0,
+                      y: 0,
+                      width: sizeIcon,
+                      height: sizeIcon
+                    })
+                    .attr('x', +posData[i][0].split("(")[1]-sizeIcon/2)
+                    .attr('y', +posData[i][1].split(")")[0]-sizeIcon/2)
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', 'red')
+                    .on('mouseover',function(d){
+                        var name = d3.select(this).attr('id');
+                        var win = d3.select(this).attr('win');;
+                        var pop = d3.select(this).attr('pop');
+                        var x = d3.select(this).attr('x');
+                        var y = d3.select(this).attr('y');
+                        showTooltip(name,win,pop, x, y);
+                    })
+                    .on("mouseout", function(d){
+                        d3.select(this)
+                          .style("cursor", "default")
+                          .attr("stroke-width", 0)
+                          .attr("stroke","none"); //volta ao valor padrão
+                        hideTooltip();
+                      });
+
+                // //Only create label if bar height is tall enough
+                // if (+b.getAttribute('height') < 18) continue;
+
+                //TEXT LABEL
+                gLabels
+                    .append("text")
+                    .text(Number(dotsData[i].key[0]).toFixed(1)+","+Number(dotsData[i].key[1]).toFixed(1))
+                    .attr('x', +posData[i][0].split("(")[1])
+                    .attr('y', +posData[i][1].split(")")[0]+sizeIcon/2+15)
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', 'red');
+            }
+        }
+
+        function showTooltip(name,win,pop, x, y){
+            d3.select("#tooltip")
+              .style("left", x + "px")
+              .style("top", y + "px")
+              .select("#win-info-scatter")
+              .text(Number(win).toFixed(1)+"%");
+            d3.select("#tooltip")
+              .style("left", x + "px")
+              .style("top", y + "px")
+              .select("#pop-info-scatter")
+              .text(Number(pop).toFixed(1)+"%");
+            d3.select("#tooltip")
+              .select("#name-scatter")
+              .text(name+"");
+            d3.select("#tooltip")
+              .classed("hidden", false);
+        }
+
+        function hideTooltip(){
+            d3.select("#tooltip")
+                .classed("hidden", true);
+        }
+    </script>           
+</body>
+</html>
