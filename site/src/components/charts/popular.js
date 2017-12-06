@@ -1,7 +1,7 @@
 import React from 'react';
 import crossfilter from 'crossfilter';
 import dc from 'dc';
-var d3 = require('d3');
+var d3 = require('d3v3');
 var queue = require('d3-queue');
 
 class Popular extends React.Component {
@@ -23,10 +23,9 @@ function setup() {
     var sizeIconChampion = 64;
     var gapWinRate = 50;
     var winPopByName = d3.map();
-    queue()
-        .defer(d3.json, process.env.PUBLIC_URL + "./data/champions.json", function (d) { winPopByName.set(d.name, [+d.winrate, +d.popularity]); })
+    queue().defer(d3.json, "static/data/champions_win_pop.json", function (d) { winPopByName.set(d.name, [+d.winrate, +d.popularity]); })
     var popularChart = dc.barChart('#popular-chart');
-    d3.json(process.env.PUBLIC_URL + "./data/champions.json", function (error, data) {
+    d3.json("static/data/champions_win_pop.json", function (error, data) {
 
         //criando um crossfilter
         var facts = crossfilter(data);
@@ -68,14 +67,14 @@ function setup() {
         var bars = chart.selectAll('.bar').each(function (d) { barsData.push(d); });
         //Remove old values (if found)
         d3.select(bars[0][0].parentNode).select('#inline-labels').remove();
-        //Create group for labels 
+        //Create group for labels
         var gLabels = d3.select(bars[0][0].parentNode).append('g').attr('id', 'inline-labels');
         for (var i = bars[0].length - 1; i >= 0; i--) {
             var b = bars[0][i];
             gLabels
                 .append('svg:image')
                 .attr({
-                    'xlink:href': 'icons_champions/' + barsData[i].data.key + '.png',
+                    'xlink:href': 'static/images/Champions_Icons/' + barsData[i].data.key + 'Square.png',
                     x: 0,
                     y: 0,
                     width: sizeIconChampion,

@@ -1,7 +1,7 @@
 import React from 'react';
 import crossfilter from 'crossfilter';
 import dc from 'dc';
-var d3 = require('d3');
+var d3 = require('d3v3');
 var queue = require('d3-queue');
 
 class Charts extends React.Component {
@@ -39,13 +39,12 @@ function setup() {
     var sizeIconChampion = 64;
     var gapWinRate = 50;
     var winPopByName = d3.map();
-    queue()
-        .defer(d3.json, process.env.PUBLIC_URL + "./data/champions.json", function (d) { winPopByName.set(d.name, [+d.winrate, +d.popularity]); })
+    queue().defer(d3.json, "static/data/champions.json", function (d) { winPopByName.set(d.name, [+d.winrate, +d.popularity]); })
     var winRateChart = dc.barChart('#winrate-chart');
     var popularChart = dc.barChart('#popular-chart');
     //var timeChart = dc.lineChart('#time-chart');
     var winPopScaterPlot = dc.scatterPlot("#win-pop-scater");
-    d3.json(process.env.PUBLIC_URL + "./data/champions.json", function (error, data) {
+    d3.json("static/data/champions.json", function (error, data) {
 
         //criando um crossfilter
         var facts = crossfilter(data);
@@ -144,7 +143,7 @@ function setup() {
         var bars = chart.selectAll('.bar').each(function (d) { barsData.push(d); });
         //Remove old values (if found)
         d3.select(bars[0][0].parentNode).select('#inline-labels').remove();
-        //Create group for labels 
+        //Create group for labels
         var gLabels = d3.select(bars[0][0].parentNode).append('g').attr('id', 'inline-labels');
         for (var i = bars[0].length - 1; i >= 0; i--) {
             var b = bars[0][i];
@@ -153,7 +152,7 @@ function setup() {
             gLabels
                 .append('svg:image')
                 .attr({
-                    'xlink:href': 'icons_champions/' + barsData[i].data.key + '.png',
+                    'xlink:href': 'static/images/Champions_Icons/' + barsData[i].data.key + 'Square.png',
                     x: 0,
                     y: 0,
                     width: sizeIconChampion,
@@ -203,7 +202,7 @@ function setup() {
         var dots = chart.selectAll('.symbol').each(function (d) { dotsData.push(d); });
         //Remove old values (if found)
         d3.select(dots[0][0].parentNode).select('#inline-labels').remove();
-        //Create group for labels 
+        //Create group for labels
         var gLabels = d3.select(dots[0][0].parentNode).append('g').attr('id', 'inline-labels');
         for (var i = dots[0].length - 1; i >= 0; i--) {
             //var b = dots[0][i];
@@ -216,7 +215,7 @@ function setup() {
                     'id': dotsData[i].key[2].name,
                     'win': dotsData[i].key[0],
                     'pop': dotsData[i].key[1],
-                    'xlink:href': 'icons_champions/' + dotsData[i].key[2].name + '.png',
+                    'xlink:href': 'static/images/Champions_Icons/' + dotsData[i].key[2].name + 'Square.png',
                     x: 0,
                     y: 0,
                     width: sizeIcon,

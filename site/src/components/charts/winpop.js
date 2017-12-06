@@ -1,7 +1,7 @@
 import React from 'react';
 import crossfilter from 'crossfilter';
 import dc from 'dc';
-var d3 = require('d3');
+var d3 = require('d3v3');
 var queue = require('d3-queue');
 
 class Winpop extends React.Component {
@@ -28,17 +28,16 @@ function setup() {
     var sizeIconChampion = 64;
     var gapWinRate = 50;
     var winPopByName = d3.map();
-    queue()
-        .defer(d3.json, process.env.PUBLIC_URL + "./data/champions.json", function (d) { winPopByName.set(d.name, [+d.winrate, +d.popularity]); })
+    queue().defer(d3.json, "static/data/champions_win_pop.json", function (d) { winPopByName.set(d.name, [+d.winrate, +d.popularity]); })
     var winPopScaterPlot = dc.scatterPlot("#win-pop-scater");
-    d3.json(process.env.PUBLIC_URL + "./data/champions.json", function (error, data) {
+    d3.json("static/data/champions_win_pop.json", function (error, data) {
 
         //criando um crossfilter
         var facts = crossfilter(data);
         var championDim = facts.dimension(function (d) {
             return d.name;
         });
-        
+
         var winDim = facts.dimension(function (d) {
             return d.winrate;
         });
@@ -70,33 +69,33 @@ function setup() {
             .on('renderlet', setDotsIconScatter);
         winPopScaterPlot.render();
     });
-    
+
     function setDotsIconScatter(chart) {
-        var sizeIcon = 64;
+        let sizeIcon = 64;
         //ON CLICK BAR
         chart.selectAll('path').on("click", function (d) {
             console.log("go to page of champion", );
         });
-        var posData = [];
+        let posData = [];
         chart.selectAll('path').each(function (d, i) {
             //console.log(this);
-            var trans = d3.select(this).attr('transform') + "";
+            let trans = d3.select(this).attr('transform') + "";
             if (trans !== "null") {
                 //console.log(trans);
-                var pos = trans.substr(trans.indexOf("("), trans.indexOf(")")).split(",");
+                let pos = trans.substr(trans.indexOf("("), trans.indexOf(")")).split(",");
                 //console.log(pos);
                 posData.push(pos);
             }
         });
         //LABEL AND ICON
         //https://stackoverflow.com/questions/25026010/show-values-on-top-of-bars-in-a-barchart
-        var dotsData = [];
-        var dots = chart.selectAll('.symbol').each(function (d) { dotsData.push(d); });
+        let dotsData = [];
+        let dots = chart.selectAll('.symbol').each(function (d) { dotsData.push(d); });
         //Remove old values (if found)
         d3.select(dots[0][0].parentNode).select('#inline-labels').remove();
-        //Create group for labels 
-        var gLabels = d3.select(dots[0][0].parentNode).append('g').attr('id', 'inline-labels');
-        for (var i = dots[0].length - 1; i >= 0; i--) {
+        //Create group for labels
+        let gLabels = d3.select(dots[0][0].parentNode).append('g').attr('id', 'inline-labels');
+        for (let i = dots[0].length - 1; i >= 0; i--) {
             //var b = dots[0][i];
             //console.log(JSON.stringify(this));
             //ICON IMAGE
@@ -104,10 +103,10 @@ function setup() {
             gLabels
                 .append('svg:image')
                 .attr({
-                    'id': dotsData[i].key[2].name,
+                    'id': dotsData[i].key[2],
                     'win': dotsData[i].key[0],
                     'pop': dotsData[i].key[1],
-                    'xlink:href': 'icons_champions/' + dotsData[i].key[2].name + '.png',
+                    'xlink:href': 'static/images/Champions_Icons/' + dotsData[i].key[2] + 'Square.png',
                     x: 0,
                     y: 0,
                     width: sizeIcon,
@@ -118,11 +117,12 @@ function setup() {
                 .attr('text-anchor', 'middle')
                 .attr('fill', 'red')
                 .on('mouseover', function (d) {
-                    var name = d3.select(this).attr('id');
-                    var win = d3.select(this).attr('win');;
-                    var pop = d3.select(this).attr('pop');
-                    var x = d3.select(this).attr('x');
-                    var y = d3.select(this).attr('y');
+                  console.log(d);
+                    let name = d3.select(this).attr('id');
+                    let win = d3.select(this).attr('win');;
+                    let pop = d3.select(this).attr('pop');
+                    let x = d3.select(this).attr('x');
+                    let y = d3.select(this).attr('y');
                     showTooltip(name, win, pop, x, y);
                 })
                 .on("mouseout", function (d) {

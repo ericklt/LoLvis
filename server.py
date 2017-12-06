@@ -1,3 +1,4 @@
+import os
 import os.path
 from flask import Flask, render_template, request
 from flask_assets import Bundle, Environment
@@ -51,6 +52,7 @@ def get_deaths():
 	return json.dumps(get_deaths_in_gold())
 
 if __name__ == '__main__':
+	os.environ['FLASK_DEBUG'] = '1'
 	app.debug = debug
 	app.config["ASSETS_DEBUG"] = debug
 	app.run()

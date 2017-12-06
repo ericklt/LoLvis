@@ -110,7 +110,7 @@ def generate_champ_stats():
 	champ_stats = py_gg.champions.all()
 	champ_name_dict = get_champId_to_name_dict()
 	for entry in champ_stats:
-		entry['name'] = champ_name_dict[entry['championId']]
+		entry['name'] = '_'.join(champ_name_dict[entry['championId']].split(' '))
 		del entry['_id']
 
 	with open('static/data/champ_stats.json', 'w') as f:

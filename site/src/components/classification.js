@@ -1,7 +1,7 @@
 import React from 'react';
 import crossfilter from 'crossfilter';
 import dc from 'dc';
-var d3 = require('d3');
+var d3 = require('d3v3');
 var queue = require('d3-queue');
 
 class Classification extends React.Component {
@@ -33,8 +33,7 @@ function setup() {
     var sizeIconChampion = 64;
     var gapWinRate = 50;
     var winPopByName = d3.map();
-    queue()
-        .defer(d3.json, process.env.PUBLIC_URL + "./data/champions.json", function (d) { winPopByName.set(d.name, [+d.winrate, +d.popularity]); })
+    queue().defer(d3.json, process.env.PUBLIC_URL + "./data/champions.json", function (d) { winPopByName.set(d.name, [+d.winrate, +d.popularity]); })
     var dataTable = dc.dataTable('#dc-table-graph');
     d3.json(process.env.PUBLIC_URL + "./data/champions.json", function (error, data) {
 
@@ -58,8 +57,8 @@ function setup() {
             .size(10);
         dataTable.render();
     });
-    
-    
+
+
 }
 
 export default Classification;
