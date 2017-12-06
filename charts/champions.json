@@ -2,26 +2,31 @@
 	{
 		"name": "Vayne",
 		"winrate": 49.6,
-		"popularity": 30.1
+		"popularity": 30.1,
+		"banishment": 26.3
 	},
 	{
 		"name": "Ezreal",
 		"winrate": 54.2,
-		"popularity": 28.3
+		"popularity": 28.3,
+		"banishment": 56.3
 	},
 	{
 		"name": "Lee Sin",
 		"winrate": 48.3,
-		"popularity": 23.7
+		"popularity": 23.7,
+		"banishment": 46.3
 	},
 	{
 		"name": "Miss Fortune",
 		"winrate": 52.0,
-		"popularity": 23.0
+		"popularity": 23.0,
+		"banishment": 20.3
 	},
 	{
 		"name": "Jhin",
 		"winrate": 48.4,
-		"popularity": 22.0
+		"popularity": 22.0,
+		"banishment": 16.3
 	}
 ]

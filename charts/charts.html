@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Champions Stats</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="css/dc.css">
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/crossfilter.js" charset="utf-8"></script>
@@ -12,13 +13,13 @@
     <style>
         #tooltip {
           position: absolute;
-          width: 240px;
+          width: 75px;
           height: auto;
-          padding: 10px;
+          padding: 5px;
           background-color: white;
-          -webkit-border-radius: 10px;
-          -moz-border-radius: 10px;
-          border-radius: 10px;
+          -webkit-border-radius: 5px;
+          -moz-border-radius: 5px;
+          border-radius: 5px;
           -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
           -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
           box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
@@ -31,8 +32,9 @@
 
         #tooltip p {
           margin: 0;
+          text-align: center;
           font-family: sans-serif;
-          font-size: 16px;
+          font-size: 14px;
           line-height: 20px;
         }
 
@@ -51,9 +53,20 @@
         <div id="win-pop-scater"></div>
         <div id="tooltip" class="hidden">
             <p><b><span id="name-scatter"></b></span>
-            <p>Win Rate: <span id="win-info-scatter"></span></p>
-            <p>Popular.: <span id="pop-info-scatter"></span></p>
+            <p>win: <span id="win-info-scatter"></span></p>
+            <p>pop: <span id="pop-info-scatter"></span></p>
         </div>
+        <h4> General Table</h4>
+        <table class="table table-hover" id="dc-table-graph">
+            <thead>
+                <tr class="header">
+                    <th>Champion</th>
+                    <th>Win Rate</th>
+                    <th>Popularity</th>
+                    <th>Banishment</th>
+                </tr>
+            </thead>
+        </table>
     </div>
     <script type="text/javascript"> 
         
@@ -63,12 +76,13 @@
 
         var winPopByName = d3.map();
         queue()
-            .defer(d3.json, "champions.json", function(d) { winPopByName.set(d.name, [+d.winrate,+d.popularity]); })
+            .defer(d3.json, "champions.json", function(d) { winPopByName.set(d.name, [+d.winrate,+d.popularity]); });
 
         var winRateChart = dc.barChart('#winrate-chart');
         var popularChart = dc.barChart('#popular-chart');
         var timeChart = dc.lineChart('#time-chart');
         var winPopScaterPlot = dc.scatterPlot("#win-pop-scater");
+        var dataTable = dc.dataTable('#dc-table-graph');
 
         d3.json("champions.json", function(error, data){ 
             //criando um crossfilter
@@ -103,7 +117,7 @@
                 .gap(gapWinRate)
                 .ordinalColors(colorBarchart)
                 .on('renderlet', setLabelsIcons);
-            winRateChart.render();
+            //winRateChart.render();
 
             var popularGroup = championDim.group().reduceSum(function(d){
                 return d.popularity;
@@ -130,7 +144,7 @@
                 .gap(gapWinRate)
                 .ordinalColors(colorBarchart)
                 .on('renderlet', setLabelsIcons);
-            popularChart.render();
+            //popularChart.render();
 
             var winDim = facts.dimension(function(d){
                 return d.winrate;
@@ -156,19 +170,36 @@
             var border = 2;
             winPopScaterPlot.width(700)
                 .height(700)
-                .margins({top: 50, right: 50, bottom: 50, left: 50})
+                .margins({top: 0, right: 50, bottom: 50, left: 50})
                 .y(d3.scale.linear().domain([winMin-border, winMax+border]))
                 .x(d3.scale.linear().domain([popMin-border, popMax+border]))
                 .yAxisLabel("Win Rate")
                 .xAxisLabel("Popularity")
                 .brushOn(false)
                 .clipPadding(10)
+                .renderHorizontalGridLines(true)
+                .renderVerticalGridLines(true)
                 .dimension(dimScaterplot)
                 .excludedOpacity(0.5)
                 .group(groupScaterplot)
                 .symbolSize(8)
                 .on('renderlet', setDotsIconScatter);
-            winPopScaterPlot.render();
+            //winPopScaterPlot.render();
+
+            dataTable.width(960)
+                .height(800)
+                .dimension(championDim)
+                .group(function(d){return "Stats";})
+                .columns([
+                  function (d) {return d.name;},
+                  function (d) {return d.winrate+"%";},
+                  function (d) {return d.popularity+"%";},
+                  function (d) {return d.banishment+"%";},
+                  ])
+                .sortBy(function (d) {return d.winrate;})
+                .order(d3.ascending)
+                .size(10);
+            dataTable.render();
         });
 
         // d3.csv("timepop.csv", function(error, data){
@@ -323,8 +354,8 @@
                     .append('svg:image')
                     .attr({
                       'id':dotsData[i].key[2].name,
-                      'win':dotsData[i].key[0],
-                      'pop':dotsData[i].key[1],
+                      'win':dotsData[i].key[1],
+                      'pop':dotsData[i].key[0],
                       'xlink:href': 'icons_champions/'+dotsData[i].key[2].name+'.png',
                       x: 0,
                       y: 0,
@@ -339,8 +370,12 @@
                         var name = d3.select(this).attr('id');
                         var win = d3.select(this).attr('win');;
                         var pop = d3.select(this).attr('pop');
-                        var x = d3.select(this).attr('x');
-                        var y = d3.select(this).attr('y');
+                        //var x = d3.select(this).attr('x');
+                        //var y = d3.select(this).attr('y');
+                        var coordinates = [0, 0];
+                        coordinates = d3.mouse(this); // obtém a posição do mouse relativa a this
+                        var x = coordinates[0];
+                        var y = coordinates[1];
                         showTooltip(name,win,pop, x, y);
                     })
                     .on("mouseout", function(d){
@@ -357,23 +392,24 @@
                 //TEXT LABEL
                 gLabels
                     .append("text")
-                    .text(Number(dotsData[i].key[0]).toFixed(1)+","+Number(dotsData[i].key[1]).toFixed(1))
+                    .text(dotsData[i].key[2].name+"/ win: "+Number(dotsData[i].key[0]).toFixed(1)+" / pop: "+Number(dotsData[i].key[1]).toFixed(1))
                     .attr('x', +posData[i][0].split("(")[1])
                     .attr('y', +posData[i][1].split(")")[0]+sizeIcon/2+15)
                     .attr('text-anchor', 'middle')
-                    .attr('fill', 'red');
+                    .style("font-size","10px")
+                    .attr('fill', colorBarchart);
             }
         }
 
         function showTooltip(name,win,pop, x, y){
-            d3.select("#tooltip")
+            console.log(name+","+win+","+pop+","+x+","+y);
+             d3.select("#tooltip")
               .style("left", x + "px")
-              .style("top", y + "px")
+              .style("top", y + "px");
+            d3.select("#tooltip")
               .select("#win-info-scatter")
               .text(Number(win).toFixed(1)+"%");
             d3.select("#tooltip")
-              .style("left", x + "px")
-              .style("top", y + "px")
               .select("#pop-info-scatter")
               .text(Number(pop).toFixed(1)+"%");
             d3.select("#tooltip")

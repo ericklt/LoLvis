@@ -78,6 +78,9 @@ div.dc-chart {
   fill-opacity: 1;
   stroke-opacity: 1; }
 
+.dc-data-table {
+}
+
 .dc-chart g.state {
   cursor: pointer; }
   .dc-chart g.state :hover {
