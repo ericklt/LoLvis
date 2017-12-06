@@ -1,0 +1,27 @@
+[
+	{
+		"name": "Vayne",
+		"winrate": 49.6,
+		"popularity": 30.1
+	},
+	{
+		"name": "Ezreal",
+		"winrate": 54.2,
+		"popularity": 28.3
+	},
+	{
+		"name": "Lee Sin",
+		"winrate": 48.3,
+		"popularity": 23.7
+	},
+	{
+		"name": "Miss Fortune",
+		"winrate": 52.0,
+		"popularity": 23.0
+	},
+	{
+		"name": "Jhin",
+		"winrate": 48.4,
+		"popularity": 22.0
+	}
+]

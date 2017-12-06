@@ -14,10 +14,20 @@ class Champion extends React.Component {
                         <img src={"../static/images/Champions_Icons/" + name + "Square.png"} alt="champ_img" />
                     </div>
                     <div className="col-md-9 col-sm-9">
-                        <p>BLAH BLAH BLAJ BLAH BLAH BLHA</p>
+                        <div>
+                            <h4>Colocar aqui quais lanes que ele joga!!</h4>
+                        </div>
                     </div>
                     <div className="col-md-12 col-sm-12">
-                        <p>graficos graficos graficos</p>
+                        <div className="col-md-4 col-sm-4">
+                            <h4>win rate !!!</h4>
+                        </div> 
+                        <div className="col-md-4 col-sm-4">
+                            <h4>pick rate !!!</h4>
+                        </div>
+                        <div className="col-md-4 col-sm-4">
+                            <h4>ban rate !!!</h4>
+                        </div>
                     </div>
                 </div>
             </div>
