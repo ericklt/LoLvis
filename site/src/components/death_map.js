@@ -57,7 +57,7 @@ class DeathMap extends React.Component {
             <div id='animation-container'>
               <div id="role-selection-container">
                 <div className="btn-group">
-                  <button type="button" id="all-btn" className="btn btn-default" onClick={()=> onLaneSelection('all')}>ALL</button>
+                  <button type="button" id="all-btn" className="btn btn-default active" onClick={()=> onLaneSelection('all')}>ALL</button>
                   <button type="button" id="top-btn" className="btn btn-default" onClick={()=> onLaneSelection('top')}>TOP</button>
                   <button type="button" id="jungle-btn" className="btn btn-default" onClick={()=> onLaneSelection('jungle')}>JUNGLE</button>
                   <button type="button" id="mid-btn" className="btn btn-default" onClick={()=> onLaneSelection('mid')}>MID</button>
