@@ -1,38 +1,58 @@
+#super-container {
+	text-align: center;
+	overflow-y: hidden;
+}
 
 .graphics-container {
-	margin-top: calc(50vh - 200px);
-	width: 600px;
-	height: 400px;
+	text-align: center;
+	margin-top: calc(50vh - 220px);
+	width: 620px;
+	height: 500px;
 	display: inline-block;
 }
 
-.deaths-visualization {
+#deaths-visualization {
 	width: 620px;
-	height: 400px;
+	height: 500px;
 	display: block;
-	margin: 0 auto;
 	position: relative;
 }
 
-.canvas-container {
+#animation-container {
+	display: inline-block;
+	width: 400px;
+	height: 480px;
+}
+
+#role-selection-container {
+	width: 400px;
+	text-align: center;
+}
+
+#canvas-container {
 	width: 400px;
 	height: 400px;
 	vertical-align: top;
+	margin-top: 20px;
 	display: inline-block;
+	position: relative;
 }
 
 /* -------------- Death charts --------------- */
 
-.deaths-chart {
+#deaths-chart {
 	width: 200px;
 	height: 400px;
+	margin-top: 50px;
 	vertical-align: top;
 	text-align: center;
+	position: relative;
 	display: inline-block;
 }
 
 .team-bar {
 	display: inline-block;
+	position: relative;
 	width: 80px;
 	height: 360px;
 	margin-left: 10px;
@@ -48,11 +68,11 @@
 	bottom: 0px;
 }
 
-.blue-bar {
+#blue-bar {
 	background-color: rgba(0, 0, 255, 0.8);
 }
 
-.red-bar {
+#red-bar {
 	background-color: rgba(255, 0, 0, 0.8);
 }
 
@@ -72,34 +92,48 @@
 	left: 0px;
 }
 
-.canvas {
+#canvas {
 	z-index: 10;
 }
 
-.progress-bar {
+#progress-bar {
+	width: 400px;
+	height: 45px;
+	text-align: left;
 	padding-top: 8px;
 	vertical-align: middle;
 }
 
-.time-slider {
+#time-slider {
 	display: inline-block;
 	margin-left: 4px;
 	width: calc(100% - 100px);
 	background: #BABABA;
 }
 
-.player-button {
+#player-button {
 	display: inline-block;
+	padding: 0;
 	width: 30px;
 	height: 30px;
+	vertical-align: top;
 }
 
-.slidecontainer {
+#play-button-icon {
+	margin-top: 2px;
+	margin-left: 2px;
+	width: 20px;
+	height: 20px;
+}
+
+#slidecontainer {
 	display: inline-block;
-    width: 360px; /* Width of the outside container */
+	margin-left: 10px;
+	margin-top: 8px;
+  width: 310px; /* Width of the outside container */
 }
 
-.slider-time {
+#slider-time {
 	margin-top: 4px;
 	margin-left: 12px;
 	position: absolute;

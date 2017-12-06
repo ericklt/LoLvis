@@ -1,13 +1,18 @@
 import React from 'react';
+<<<<<<< HEAD
 import Charts from './components/charts';
 import Winrate from './components/charts/winrate';
 import Popular from './components/charts/popular';
 import Winpop from './components/charts/winpop';
 
+=======
+import General from './components/general'
+>>>>>>> 4b235e7a4e07c1ed44780aa003c6de2d641000c3
 
 class Home extends React.Component {
   render() {
     return(
+<<<<<<< HEAD
       <div className="container champ-title">
         <div className="home-header">
           <h1>Seja bem vindo ao League Vis_</h1>
@@ -25,6 +30,9 @@ class Home extends React.Component {
           <Winpop />
         </div>
       </div>
+=======
+      <General />
+>>>>>>> 4b235e7a4e07c1ed44780aa003c6de2d641000c3
     );
   }
 }

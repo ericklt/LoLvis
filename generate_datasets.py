@@ -2,9 +2,11 @@ import requests
 import json
 import os.path
 from riotwatcher import RiotWatcher
+import py_gg
 from api_key import API_KEY, GG_KEY
 
 watcher = RiotWatcher(API_KEY)
+py_gg.init(GG_KEY)
 my_region = 'br1'
 
 def generate_gold_players():
@@ -45,7 +47,7 @@ def generate_gold_ranqued_matches():
 def get_roles_in_match(match_id):
 	match = watcher.match.by_id(my_region, match_id)
 	player_roles = {
-		participant['participantId']: (participant['timeline']['lane'] if participant['timeline']['lane'] != 'BOTTOM' else participant['timeline']['role']) 
+		participant['participantId']: (participant['timeline']['lane'] if participant['timeline']['lane'] != 'BOTTOM' else participant['timeline']['role'])
 		for participant in match['participants']
 	}
 	player_roles[0] = 'NONE'
@@ -84,9 +86,34 @@ def backup_deaths(kill_events):
 	for match_id in kill_events:
 		cleaned[match_id] = [
 								{ key: event[key] for key in ('killerRole', 'victimRole', 'timestamp', 'position', 'victimTeam')}
-							for event in kill_events[match_id]] 
+							for event in kill_events[match_id]]
 
 	with open('static/data/kill_events.json', 'w') as f:
 		json.dump(cleaned, f, indent='\t')
 
-generate_matches_deaths()
+# generate_matches_deaths()
+
+base_data = {}
+
+def get_champions_dict():
+	lol_response_data = watcher.static_data.champions(my_region)['data']
+	d = {int(lol_response_data[key]['id']):lol_response_data[key] for key in lol_response_data}
+	return d
+
+def get_champId_to_name_dict():
+	if 'champId_to_name' not in base_data:
+		champions_dict = get_champions_dict()
+		base_data['champId_to_name'] = {_id : champions_dict[_id]['name'] for _id in champions_dict}
+	return base_data['champId_to_name']
+
+def generate_champ_stats():
+	champ_stats = py_gg.champions.all()
+	champ_name_dict = get_champId_to_name_dict()
+	for entry in champ_stats:
+		entry['name'] = champ_name_dict[entry['championId']]
+		del entry['_id']
+
+	with open('static/data/champ_stats.json', 'w') as f:
+		json.dump(champ_stats, f, indent='\t')
+
+generate_champ_stats()
