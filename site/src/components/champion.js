@@ -2,7 +2,7 @@ import React from 'react';
 import dc from 'dc';
 import $ from 'jquery'
 
-var d3 = require('d3v3');
+var d3 = require('d3');
 
 class Champion extends React.Component {
 

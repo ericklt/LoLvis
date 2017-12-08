@@ -1,7 +1,7 @@
 import React from 'react';
 import crossfilter from 'crossfilter';
 import dc from 'dc';
-var d3 = require('d3v3');
+var d3 = require('d3');
 var queue = require('d3-queue');
 
 class Charts extends React.Component {
