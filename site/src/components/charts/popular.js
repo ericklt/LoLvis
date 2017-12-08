@@ -2,7 +2,6 @@ import React from 'react';
 import crossfilter from 'crossfilter';
 import dc from 'dc';
 var d3 = require('d3v3');
-var queue = require('d3-queue');
 
 class Popular extends React.Component {
     componentDidMount() {
@@ -18,40 +17,53 @@ class Popular extends React.Component {
     }
 }
 
+function filterData(data) {
+  let newData = {}
+  for (let i in data) {
+    let name = data[i].name;
+    if (!(name in newData) || +data[i].playRate > +newData[name].playRate)
+        newData[name] = data[i];
+  }
+  let data_list = []
+  for (let key in newData) {
+    data_list.push(newData[key]);
+  }
+  return data_list;
+}
+
 function setup() {
     var colorBarchart = ["#1E2226"];
     var sizeIconChampion = 64;
-    var gapWinRate = 50;
-    var winPopByName = d3.map();
-    queue().defer(d3.json, "static/data/champions_win_pop.json", function (d) { winPopByName.set(d.name, [+d.winrate, +d.popularity]); })
+    var gapWinRate = 20;
     var popularChart = dc.barChart('#popular-chart');
-    d3.json("static/data/champions_win_pop.json", function (error, data) {
+    d3.json("static/data/champ_stats.json", function (error, data) {
 
+        data.forEach(d => d.pop = d.playRate*100);
+
+        data = filterData(data);
+        data.sort((d1, d2) => d2.pop - d1.pop);
+        data = data.slice(0, 10);
         //criando um crossfilter
         var facts = crossfilter(data);
-        var championDim = facts.dimension(function (d) {
-            return d.name;
-        });
-        var popularGroup = championDim.group().reduceSum(function (d) {
-            return d.popularity;
-        });
-        var sortChampions = data.sort(function (a, b) { return a.popularity < b.popularity; });
-        var champions = sortChampions.map(function (d) { return d.name; });
+        var championDim = facts.dimension(d => d.name);
+        var popularGroup = championDim.group().reduceSum(d => d.pop);
+
+        var top10 = popularGroup.orderNatural().top(10);
+        var top10Names = top10.map(d => d.key);
         //POPULARITY
         popularChart
             .width(800)
             .height(400)
             .margins({ top: 50, right: 50, bottom: 50, left: 50 })
             .dimension(championDim)
-            .y(d3.scale.linear().domain([0, 100]))
+            .group(popularGroup)
             .xUnits(dc.units.ordinal)
-            .x(d3.scale.ordinal().domain(champions))
+            .x(d3.scale.ordinal().domain(top10Names))
+            .y(d3.scale.linear().domain([0, 40]))
             .xAxisLabel("Champions")
             .yAxisLabel("Popularity (%)")
             .renderHorizontalGridLines(true)
             .brushOn(false)
-            .group(popularGroup)
-            .ordering(function (d) { return d.winrate; })
             .gap(gapWinRate)
             .ordinalColors(colorBarchart)
             .on('renderlet', setLabelsIcons);

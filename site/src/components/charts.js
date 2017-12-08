@@ -11,13 +11,9 @@ class Charts extends React.Component {
     render() {
         return (
             <div className="container champs-container">
-                <div className="champ-title page-titles">
-                    <h1>Charts</h1>
-                </div>
                 <div className="champs">
-
                     <h4> Champions Win Rate Rank</h4>
-                    <div id="winrate-chart"></div>
+                    <div id="winRate-chart"></div>
                     <h4> Champions Popularity Rank</h4>
                     <div id="popular-chart"></div>
                     <h4> Popularity By Win Rate</h4>
@@ -34,86 +30,98 @@ class Charts extends React.Component {
     }
 }
 
+function filterData(data) {
+  let newData = {}
+  for (let i in data) {
+    let name = data[i].name;
+    if (!(name in newData) || data[i].playRate > newData[name].playRate)
+        newData[name] = data[i];
+  }
+  let data_list = []
+  for (let key in newData)
+    data_list.push(newData[key]);
+  return data_list;
+}
+
 function setup() {
     var colorBarchart = ["#1E2226"];
     var sizeIconChampion = 64;
-    var gapWinRate = 50;
-    var winPopByName = d3.map();
-    queue().defer(d3.json, "static/data/champions.json", function (d) { winPopByName.set(d.name, [+d.winrate, +d.popularity]); })
-    var winRateChart = dc.barChart('#winrate-chart');
-    var popularChart = dc.barChart('#popular-chart');
-    //var timeChart = dc.lineChart('#time-chart');
+    var gapWinRate = 20;
+
+    var winRateChart = dc.rowChart('#winRate-chart');
+    var popularChart = dc.rowChart('#popular-chart');
     var winPopScaterPlot = dc.scatterPlot("#win-pop-scater");
-    d3.json("static/data/champions.json", function (error, data) {
+
+    d3.json("static/data/champ_stats.json", function (error, data) {
+
+        data = filterData(data);
+
+        data.forEach(function(d) {
+            d.win = (d.winRate * 100).toFixed(1);
+            d.pop = (d.playRate * 100).toFixed(1);
+            d.ban = (d.banRate * 100).toFixed(1);
+        });
 
         //criando um crossfilter
-        var facts = crossfilter(data);
-        var championDim = facts.dimension(function (d) {
-            return d.name;
-        });
-        var winRateGroup = championDim.group().reduceSum(function (d) {
-            return d.winrate;
-        });
-        var sortChampions = data.sort(function (a, b) { return a.winrate < b.winrate; });
-        var champions = sortChampions.map(function (d) { return d.name; });
+        let facts = crossfilter(data);
+        let championDim = facts.dimension(d => d.name);
+
         //WIN RATE
+        let winRateGroup = championDim.group();
+
         winRateChart
             .width(800)
             .height(400)
             .margins({ top: 50, right: 50, bottom: 50, left: 50 })
             .dimension(championDim)
-            .y(d3.scale.linear().domain([0, 100]))
-            .xUnits(dc.units.ordinal)
-            .x(d3.scale.ordinal().domain(champions))
-            .xAxisLabel("Champions")
-            .yAxisLabel("Win Rate (%)")
-            .renderHorizontalGridLines(true)
-            .brushOn(false)
             .group(winRateGroup)
-            .ordering(function (d) { return d.winrate; })
-            .gap(gapWinRate)
-            .ordinalColors(colorBarchart)
+            // .x(d3.scale.ordinal())
+            // .xUnits(dc.units.ordinal)
+            // .xAxisLabel("Champions")
+            // .yAxisLabel("Win Rate (%)")
+            // .renderHorizontalGridLines(true)
+            // .brushOn(false)
+            // .gap(gapWinRate)
+            // .elasticY(true)
+            // .ordinalColors(colorBarchart)
+            .ordering(d => -d.win)
             .on('renderlet', setLabelsIcons);
-        winRateChart.render();
 
-        var popularGroup = championDim.group().reduceSum(function (d) {
-            return d.popularity;
-        });
-        sortChampions = data.sort(function (a, b) { return a.popularity < b.popularity; });
-        champions = sortChampions.map(function (d) { return d.name; });
+        winRateChart.data(group => group.top(10));
+
         //POPULARITY
+        let popularGroup = championDim.group();
         popularChart
             .width(800)
             .height(400)
             .margins({ top: 50, right: 50, bottom: 50, left: 50 })
             .dimension(championDim)
-            .y(d3.scale.linear().domain([0, 100]))
-            .xUnits(dc.units.ordinal)
-            .x(d3.scale.ordinal().domain(champions))
-            .xAxisLabel("Champions")
-            .yAxisLabel("Popularity (%)")
-            .renderHorizontalGridLines(true)
-            .brushOn(false)
             .group(popularGroup)
-            .ordering(function (d) { return d.winrate; })
-            .gap(gapWinRate)
-            .ordinalColors(colorBarchart)
+            // .x(d3.scale.ordinal())
+            // .xUnits(dc.units.ordinal)
+            // .xAxisLabel("Champions")
+            // .yAxisLabel("Popularity (%)")
+            // .renderHorizontalGridLines(true)
+            // .brushOn(false)
+            // .elasticY(true)
+            // .gap(gapWinRate)
+            // .ordinalColors(colorBarchart)
+            .ordering(d => -d.pop)
             .on('renderlet', setLabelsIcons);
-        popularChart.render();
-        var winDim = facts.dimension(function (d) {
-            return d.winrate;
-        });
-        var winMin = +winDim.bottom(1)[0].winrate;
-        var winMax = +winDim.top(1)[0].winrate;
-        var popDim = facts.dimension(function (d) {
-            return d.popularity;
-        });
-        var popMin = +popDim.bottom(1)[0].popularity;
-        var popMax = +popDim.top(1)[0].popularity;
+
+        popularChart.data(group => group.top(10));
+
+        let winDim = facts.dimension(d => d.win);
+
+        var winMin = winDim.bottom(1)[0].win;
+        var winMax = winDim.top(1)[0].win;
+
+        var popDim = facts.dimension(d => d.pop);
+
+        var popMin = popDim.bottom(1)[0].pop;
+        var popMax = popDim.top(1)[0].pop;
         //console.log(winMin+","+winMax+","+popMin+","+popMax);
-        var dimScaterplot = facts.dimension(function (d) {
-            return [+d.popularity, +d.winrate, d.name];
-        });
+        let dimScaterplot = facts.dimension(d => [d.pop, d.win, d.name]);
         var groupScaterplot = dimScaterplot.group();
         var border = 2;
         winPopScaterPlot.width(700)
@@ -130,17 +138,16 @@ function setup() {
             .group(groupScaterplot)
             .symbolSize(8)
             .on('renderlet', setDotsIconScatter);
-        winPopScaterPlot.render();
+
+        dc.renderAll();
     });
     function setLabelsIcons(chart) {
         //ON CLICK BAR
-        chart.selectAll('rect').on("click", function (d) {
-            console.log("go to page of champion", d);
-        });
+        chart.selectAll('rect').on("click", d => console.log("go to page of champion", d));
         //LABEL AND ICON
         //https://stackoverflow.com/questions/25026010/show-values-on-top-of-bars-in-a-barchart
         var barsData = [];
-        var bars = chart.selectAll('.bar').each(function (d) { barsData.push(d); });
+        var bars = chart.selectAll('.bar').each(d => barsData.push(d));
         //Remove old values (if found)
         d3.select(bars[0][0].parentNode).select('#inline-labels').remove();
         //Create group for labels
@@ -152,7 +159,7 @@ function setup() {
             gLabels
                 .append('svg:image')
                 .attr({
-                    'xlink:href': 'static/images/Champions_Icons/' + barsData[i].data.key + 'Square.png',
+                    'xlink:href': 'static/images/Champions_Icons/' + barsData[i].key[2] + 'Square.png',
                     x: 0,
                     y: 0,
                     width: sizeIconChampion,
@@ -172,7 +179,7 @@ function setup() {
             //TEXT LABEL
             gLabels
                 .append("text")
-                .text(Number(barsData[i].data.value).toFixed(1) + "%")
+                .text(Number(barsData[i].value).toFixed(1) + "%")
                 .attr('x', +b.getAttribute('x') + (b.getAttribute('width') / 2))
                 .attr('y', +b.getAttribute('y') + 24)
                 .attr('text-anchor', 'middle')
@@ -215,7 +222,7 @@ function setup() {
                     'id': dotsData[i].key[2].name,
                     'win': dotsData[i].key[0],
                     'pop': dotsData[i].key[1],
-                    'xlink:href': 'static/images/Champions_Icons/' + dotsData[i].key[2].name + 'Square.png',
+                    'xlink:href': 'static/images/Champions_Icons/' + dotsData[i].key[2] + 'Square.png',
                     x: 0,
                     y: 0,
                     width: sizeIcon,

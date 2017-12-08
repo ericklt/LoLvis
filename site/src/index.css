@@ -107,3 +107,7 @@ body {
 charts-div {
   margin-top: 100px;
 }
+
+#lanes-champion {
+  display: inline-block;
+}

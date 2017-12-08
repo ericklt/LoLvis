@@ -2,7 +2,6 @@ import React from 'react';
 import crossfilter from 'crossfilter';
 import dc from 'dc';
 var d3 = require('d3v3');
-var queue = require('d3-queue');
 
 class Winpop extends React.Component {
     componentDidMount() {
@@ -23,41 +22,58 @@ class Winpop extends React.Component {
     }
 }
 
+function filterData(data) {
+  let newData = {}
+  for (let i in data) {
+    let name = data[i].name;
+    if (!(name in newData) || data[i].percentRolePlayed > newData[name].percentRolePlayed)
+        newData[name] = data[i];
+  }
+  let data_list = []
+  for (let key in newData) {
+    data_list.push(newData[key]);
+  }
+  return data_list;
+}
+
 function setup() {
     var colorBarchart = ["#1E2226"];
     var sizeIconChampion = 64;
-    var gapWinRate = 50;
-    var winPopByName = d3.map();
-    queue().defer(d3.json, "static/data/champions_win_pop.json", function (d) { winPopByName.set(d.name, [+d.winrate, +d.popularity]); })
-    var winPopScaterPlot = dc.scatterPlot("#win-pop-scater");
-    d3.json("static/data/champions_win_pop.json", function (error, data) {
 
+    var winPopScaterPlot = dc.scatterPlot("#win-pop-scater");
+    d3.json("static/data/champ_stats.json", function (error, data) {
+
+        data.forEach(function(d) {
+            d.win = d.winRate*100;
+            d.pop = d.playRate*100;
+        });
+
+        data = filterData(data);
+        data.sort((d1, d2) => d2.win - d1.win);
+        let data1 = data.slice(0, 5);
+        data.sort((d1, d2) => d2.pop - d1.pop);
+        let data2 = data.slice(0, 5);
+        data = data1.concat(data2);
         //criando um crossfilter
         var facts = crossfilter(data);
-        var championDim = facts.dimension(function (d) {
-            return d.name;
-        });
+        var championDim = facts.dimension(d => d.name);
 
-        var winDim = facts.dimension(function (d) {
-            return d.winrate;
-        });
-        var winMin = +winDim.bottom(1)[0].winrate;
-        var winMax = +winDim.top(1)[0].winrate;
-        var popDim = facts.dimension(function (d) {
-            return d.popularity;
-        });
-        var popMin = +popDim.bottom(1)[0].popularity;
-        var popMax = +popDim.top(1)[0].popularity;
-        var dimScaterplot = facts.dimension(function (d) {
-            return [+d.popularity, +d.winrate, d.name];
-        });
+        var winDim = facts.dimension(d => d.win);
+        var winMin = winDim.bottom(1)[0].win;
+        var winMax = winDim.top(1)[0].win;
+
+        var popDim = facts.dimension(d => d.pop);
+        var popMin = popDim.bottom(1)[0].pop;
+        var popMax = popDim.top(1)[0].pop;
+
+        var dimScaterplot = facts.dimension(d => [d.pop, d.win, d.name]);
         var groupScaterplot = dimScaterplot.group();
         var border = 2;
         winPopScaterPlot.width(700)
             .height(700)
             .margins({ top: 50, right: 50, bottom: 50, left: 50 })
             .y(d3.scale.linear().domain([winMin - border, winMax + border]))
-            .x(d3.scale.linear().domain([popMin - border, popMax + border]))
+            .x(d3.scale.linear().domain([popMin - border, popMax + border*2]))
             .yAxisLabel("Win Rate")
             .xAxisLabel("Popularity")
             .brushOn(false)

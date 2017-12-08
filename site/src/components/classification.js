@@ -2,7 +2,6 @@ import React from 'react';
 import crossfilter from 'crossfilter';
 import dc from 'dc';
 var d3 = require('d3v3');
-var queue = require('d3-queue');
 
 class Classification extends React.Component {
     componentDidMount() {
@@ -28,33 +27,49 @@ class Classification extends React.Component {
     }
 }
 
+function filterData(data) {
+  let newData = {}
+  for (let i in data) {
+    let name = data[i].name;
+    if (!(name in newData) || data[i].playRate > newData[name].playRate)
+        newData[name] = data[i];
+  }
+  let data_list = []
+  for (let key in newData) {
+    data_list.push(newData[key]);
+  }
+  return data_list;
+}
+
 function setup() {
     var colorBarchart = ["#1E2226"];
     var sizeIconChampion = 64;
     var gapWinRate = 50;
-    var winPopByName = d3.map();
-    queue().defer(d3.json, process.env.PUBLIC_URL + "./data/champions.json", function (d) { winPopByName.set(d.name, [+d.winrate, +d.popularity]); })
     var dataTable = dc.dataTable('#dc-table-graph');
-    d3.json(process.env.PUBLIC_URL + "./data/champions.json", function (error, data) {
+
+    d3.json("static/data/champ_stats.json", function (error, data) {
+
+        data.forEach(d => {
+            d.win = d.winRate*100;
+            d.pop = d.playRate*100;
+            d.ban = d.banRate*100;
+        });
 
         var facts = crossfilter(data);
-        var championDim = facts.dimension(function (d) {
-            return d.name;
-        });
+        var championDim = facts.dimension(d => [d.name, d.role]);
 
         dataTable.width(960)
             .height(800)
             .dimension(championDim)
-            .group(function(d){return "Stats";})
+            .group(d => "Stats")
             .columns([
-                function (d) {return d.name;},
-                function (d) {return d.winrate+"%";},
-                function (d) {return d.popularity+"%";},
-                function (d) {return d.banishment+"%";},
+                d => d.name,
+                d => d.win.toFixed(1)+"%",
+                d => d.pop.toFixed(1)+"%",
+                d => d.ban.toFixed(1)+"%",
             ])
-            .sortBy(function (d) {return d.winrate;})
-            .order(d3.ascending)
-            .size(10);
+            .sortBy(d => d.win)
+            .order(d3.descending);
         dataTable.render();
     });
 

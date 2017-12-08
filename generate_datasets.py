@@ -107,10 +107,17 @@ def get_champId_to_name_dict():
 	return base_data['champId_to_name']
 
 def generate_champ_stats():
-	champ_stats = py_gg.champions.all()
+	# champ_stats = py_gg.champions.all()
 	champ_name_dict = get_champId_to_name_dict()
+	champ_stats = []
+	for _id in champ_name_dict:
+		champ_stats += py_gg.champions.specific(_id)
+		print('Getting {}                   '.format(champ_name_dict[_id]), end='\r')
+
 	for entry in champ_stats:
-		entry['name'] = '_'.join(champ_name_dict[entry['championId']].split(' '))
+		entry['name'] = '_'.join(''.join(champ_name_dict[entry['championId']].split('\'')).split(' '))
+		if entry['name'] == 'Aatrox':
+			print('asijdaisisjd')
 		del entry['_id']
 
 	with open('static/data/champ_stats.json', 'w') as f:

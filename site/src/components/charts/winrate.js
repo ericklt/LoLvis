@@ -2,7 +2,6 @@ import React from 'react';
 import crossfilter from 'crossfilter';
 import dc from 'dc';
 var d3 = require('d3v3');
-var queue = require('d3-queue');
 
 class Winrate extends React.Component {
     componentDidMount() {
@@ -12,46 +11,60 @@ class Winrate extends React.Component {
         return(
             <div>
                 <h4> Champions Win Rate Rank</h4>
-                <div id="winrate-chart"></div>
+                <div id="winRate-chart"></div>
             </div>
         );
     }
 }
 
+function filterData(data) {
+  let newData = {}
+  data.forEach(function(d) {
+      if (!(d.name in newData) || d.playRate > newData[d.name].playRate)
+          newData[d.name] = d;
+  });
+  let data_list = []
+  for (let key in newData) {
+    data_list.push(newData[key]);
+  }
+  return data_list;
+}
+
 function setup() {
     var colorBarchart = ["#1E2226"];
     var sizeIconChampion = 64;
-    var gapWinRate = 50;
-    var winPopByName = d3.map();
-    queue().defer(d3.json, "static/data/champions_win_pop.json", function (d) { winPopByName.set(d.name, [+d.winrate, +d.popularity]); })
-    var winRateChart = dc.barChart('#winrate-chart');
-    d3.json("static/data/champions_win_pop.json", function (error, data) {
+    var gapWinRate = 20;
+
+    var winRateChart = dc.barChart('#winRate-chart');
+    d3.json("static/data/champ_stats.json", function (error, data) {
+
+        data.forEach(d => d.win = d.winRate*100);
+
+        data = filterData(data);
+
+        data.sort((d1, d2) => d2.win - d1.win)
+        data = data.slice(0, 10);
 
         //criando um crossfilter
         var facts = crossfilter(data);
-        var championDim = facts.dimension(function (d) {
-            return d.name;
-        });
-        var winRateGroup = championDim.group().reduceSum(function (d) {
-            return d.winrate;
-        });
-        var sortChampions = data.sort(function (a, b) { return a.winrate < b.winrate; });
-        var champions = sortChampions.map(function (d) { return d.name; });
+        var championDim = facts.dimension(d => d.name);
+        var winRateGroup = championDim.group().reduceSum(d => d.win)
+        var top10 = winRateGroup.orderNatural().top(10);
+        var top10Names = top10.map(d => d.key);
         //WIN RATE
         winRateChart
             .width(800)
             .height(400)
             .margins({ top: 50, right: 50, bottom: 50, left: 50 })
             .dimension(championDim)
-            .y(d3.scale.linear().domain([0, 100]))
+            .group(winRateGroup)
             .xUnits(dc.units.ordinal)
-            .x(d3.scale.ordinal().domain(champions))
+            .x(d3.scale.ordinal().domain(top10Names))
+            .y(d3.scale.linear().domain([0, 100]))
             .xAxisLabel("Champions")
             .yAxisLabel("Win Rate (%)")
             .renderHorizontalGridLines(true)
             .brushOn(false)
-            .group(winRateGroup)
-            .ordering(function (d) { return d.winrate; })
             .gap(gapWinRate)
             .ordinalColors(colorBarchart)
             .on('renderlet', setLabelsIcons);
