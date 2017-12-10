@@ -17,6 +17,8 @@ var playerSpeed = 1;
 
 var deathFilter = 'all';
 
+var selectedTeam = 'none';
+
 class DeathMap extends React.Component {
 
   componentDidMount() {
@@ -24,9 +26,7 @@ class DeathMap extends React.Component {
     ctx = canvas.getContext('2d');
     this.loadDeaths();
 
-    $(".btn-group > .btn").click(function(){
-      $(this).addClass("active").siblings().removeClass("active");
-    });
+    $(".btn-group > .btn").click(() => $(this).addClass("active").siblings().removeClass("active"));
   }
 
   loadDeaths() {
@@ -83,12 +83,12 @@ class DeathMap extends React.Component {
             <div id='deaths-chart'>
               <h4>Mortes</h4>
               <div className='team-bar'>
-                <div id='blue-bar' className='death-bar'>
+                <div id='blue-bar' className='death-bar' onClick={clickedBlueBar}>
                   <span id='blue-span' className='team-span'>0</span>
                 </div>
               </div>
               <div className='team-bar'>
-                <div id='red-bar' className='death-bar'>
+                <div id='red-bar' className='death-bar' onClick={clickedRedBar}>
                   <span id='red-span' className='team-span'>0</span>
                 </div>
               </div>
@@ -101,6 +101,28 @@ class DeathMap extends React.Component {
   }
 }
 
+function clickedBlueBar() {
+    $('.death-bar').removeClass('selected-bar');
+    if (selectedTeam === 'blue') {
+        selectedTeam = 'none';
+    } else {
+        selectedTeam = 'blue';
+        $('#blue-bar').addClass('selected-bar');
+    }
+    updateDeaths();
+}
+
+function clickedRedBar() {
+    $('.death-bar').removeClass('selected-bar');
+    if (selectedTeam === 'red') {
+        selectedTeam = 'none';
+    } else {
+        selectedTeam = 'red';
+        $('#red-bar').addClass('selected-bar');
+    }
+    updateDeaths();
+}
+
 function filterDeaths() {
   deaths = [];
   max = 0;
@@ -108,12 +130,13 @@ function filterDeaths() {
   maxRedDeaths = 0;
   for (let i in rawDeaths) {
     let item = rawDeaths[i];
-    if (   deathFilter === 'all'
+    if (    deathFilter === 'all'
         || (deathFilter === 'adc' && item.victimRole === 'DUO_CARRY')
         || (deathFilter === 'supp' && item.victimRole === 'DUO_SUPPORT')
         || (deathFilter === 'mid' && item.victimRole === 'MIDDLE')
         || (deathFilter === 'jungle' && item.victimRole === 'JUNGLE')
-        || (deathFilter === 'top' && item.victimRole === 'TOP')) {
+        || (deathFilter === 'top' && item.victimRole === 'TOP')
+    ) {
       deaths.push(item);
       max = Math.max(max, item.timestamp + 100000)
       if (item.victimTeam === 'blue') maxBlueDeaths++; else maxRedDeaths++;
@@ -153,7 +176,11 @@ function updateDeaths() {
         let item = deaths[i];
         if (item.timestamp < timeValue)
             if (item.victimTeam === 'blue') blues++; else reds++;
-        drawDeath(SRposToCanvasXY(item.position), item.victimTeam, item.timestamp);
+        if (    selectedTeam === 'none'
+            || (selectedTeam === 'red' && item.victimTeam === 'red')
+            || (selectedTeam === 'blue' && item.victimTeam === 'blue')
+        )
+            drawDeath(SRposToCanvasXY(item.position), item.victimTeam, item.timestamp);
     }
     updateDeathChart(blues, reds);
 }

@@ -82,6 +82,11 @@
 	top: -20px;
 }
 
+.selected-bar {
+	border-left: 4px solid yellow;
+	border-right: 4px solid yellow;
+}
+
 /* ------------------------------------------- */
 
 .canvas-class {
