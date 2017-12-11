@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="css/dc.css">
     <link rel="stylesheet" href="css/styles.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
     <script src="js/crossfilter.js" charset="utf-8"></script>
     <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="js/dc.js" charset="utf-8"></script>
@@ -38,6 +39,10 @@
           line-height: 20px;
         }
 
+        .order{
+          background-color: #8F918E;
+        }
+
     </style>
 
 </head>
@@ -62,10 +67,11 @@
         <table class="table table-hover" id="dc-table-graph">
             <thead>
                 <tr class="header">
-                    <th>Champion</th>
-                    <th>Win Rate</th>
-                    <th>Popularity</th>
-                    <th>Banishment</th>
+                    <th class="data-table-col" data-col="name">Champion</th>
+                    <th class="data-table-col" data-col="role">Role</th>
+                    <th class="data-table-col order" data-col="winrate">Win Rate</th>
+                    <th class="data-table-col" data-col="popularity">Popularity</th>
+                    <th class="data-table-col" data-col="banishment">Banishment</th>
                 </tr>
             </thead>
         </table>
@@ -317,20 +323,46 @@
                 .on('renderlet', setDotsIconScatter);
             winPopScaterPlot.render();
 
+            var sortAscending = false;
+            var actualColumn = "winrate";
             dataTable.width(800)
                 .height(800)
                 .dimension(championDim)
                 .group(function(d){return "Stats";})
                 .columns([
                   function (d) {return d.name;},
+                  function (d) {return d.role;},
                   function (d) {return d.winrate+"%";},
                   function (d) {return d.popularity+"%";},
                   function (d) {return d.banishment+"%";},
                   ])
                 .sortBy(function (d) {return d.winrate;})
-                .order(d3.ascending)
+                .order(d3.descending)
                 .size(10);
             dataTable.render();
+
+            //Salvou: https://stackoverflow.com/questions/21113513/reorder-datatable-by-column e https://stackoverflow.com/questions/2194992/jquery-is-not-defined
+            $('#dc-table-graph').on('click', '.data-table-col', function() {
+                var column = $(this).attr("data-col");
+                d3.selectAll(".data-table-col").style("background-color","white");
+                d3.select(this).style("background-color","#8F918E");
+
+                if(actualColumn===column){
+                    sortAscending=!sortAscending;
+                }else{
+                    if(column!="name"&&column!="role"){
+                        sortAscending=false;
+                    }else{
+                        sortAscending=true;
+                    }
+                }
+                actualColumn=column;
+
+                dataTable.sortBy(d=>d[column])
+                        .order(sortAscending?d3.ascending:d3.descending);
+                dataTable.redraw();
+            });
+
         });
 
         function setRoleIcons(chart){
