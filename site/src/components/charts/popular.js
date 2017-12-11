@@ -10,7 +10,7 @@ class Popular extends React.Component {
     render() {
         return (
             <div>
-                <h4> Champions Popularity Rank</h4>
+                <h3> Champions Popularity Rank</h3>
                 <div id="popular-chart"></div>
             </div>
         );

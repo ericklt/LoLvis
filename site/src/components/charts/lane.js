@@ -3,15 +3,15 @@ import crossfilter from 'crossfilter';
 import dc from 'dc';
 var d3 = require('d3');
 
-class Winrate extends React.Component {
+class Lane extends React.Component {
     componentDidMount() {
         setup();
     }
     render() {
-        return(
+        return (
             <div>
-                <h3> Champions Win Rate Rank</h3>
-                <div id="winRate-chart"></div>
+                <h3> Role Popularity</h3>
+                <div id="rolepop-chart"></div>
             </div>
         );
     }
@@ -19,10 +19,11 @@ class Winrate extends React.Component {
 
 function filterData(data) {
   let newData = {}
-  data.forEach(function(d) {
-      if (!(d.name in newData) || d.playRate > newData[d.name].playRate)
-          newData[d.name] = d;
-  });
+  for (let i in data) {
+    let name = data[i].name;
+    if (!(name in newData) || +data[i].playRate > +newData[name].playRate)
+        newData[name] = data[i];
+  }
   let data_list = []
   for (let key in newData) {
     data_list.push(newData[key]);
@@ -34,67 +35,63 @@ function setup() {
     var colorBarchart = ["#1E2226"];
     var sizeIconChampion = 64;
     var gapWinRate = 20;
+    var rolePopChart = dc.barChart('#rolepop-chart');
 
-    var winRateChart = dc.barChart('#winRate-chart');
     d3.json("static/data/champ_stats.json", function (error, data) {
 
-        data.forEach(d => d.win = d.winRate*100);
+        data.forEach(d => d.pop = d.playRate*100);
 
         data = filterData(data);
-
-        data.sort((d1, d2) => d2.win - d1.win)
+        data.sort((d1, d2) => d2.pop - d1.pop);
         data = data.slice(0, 10);
-
         //criando um crossfilter
         var facts = crossfilter(data);
-
-        var championDim = facts.dimension(d => d.name);
-        //var winRateGroup = championDim.group().reduceSum(d => d.win)
-        var champions;
-        var winRateGroup = championDim.group().reduce(
+        var roleDim = facts.dimension(function(d){
+            return d.role;
+        });
+        //var championDim = facts.dimension(d => d.name);
+        //var popularGroup = championDim.group().reduceSum(d => d.pop);
+        var popularityByLan = roleDim.group().reduce(
             function(v,d){
-                v.amount = (v.amount*v.count + d.win)/(v.count+1);
+                v.amount = (v.amount*v.count + d.pop)/(v.count+1);
                 v.count++;
                 return v;
             },
             function(v,d){
-                v.amount = (v.amount*v.count - d.win)/(v.count-1);
+                v.amount = (v.amount*v.count - d.pop)/(v.count-1);
                 v.count--;
                 return v;
             },
             function(v,d){
-                champions = []; 
                 return {amount:0,count:0};
             }
         );
-        var top10 = winRateGroup.order(d=> d.amount).top(10);
+        var top10 = popularityByLan.order(d=> d.amount).top(10);
         var top10Names = top10.map(d => d.key);
-        //WIN RATE
-        winRateChart
+        //POPULARITY
+        rolePopChart
             .width(800)
             .height(400)
             .margins({ top: 50, right: 50, bottom: 50, left: 50 })
-            .dimension(championDim)
+            .dimension(roleDim)
+            .group(popularityByLan)
             .xUnits(dc.units.ordinal)
-            //.x(d3.scale.ordinal().domain(champions))
             .x(d3.scale.ordinal().domain(top10Names))
-            .y(d3.scale.linear().domain([0, 100]))
+            .y(d3.scale.linear().domain([0, 40]))
             .xAxisLabel("Champions")
-            .yAxisLabel("Win Rate (%)")
+            .yAxisLabel("Popularity (%)")
             .renderHorizontalGridLines(true)
             //.brushOn(false)
-            .group(winRateGroup)
             .valueAccessor(function (p) {
                 return p.value.amount;
             })
-            .ordering(function(d) { return d.win; })
+            //.ordering(function(d) { return d.pop; })
             .gap(gapWinRate)
             .ordinalColors(colorBarchart)
-            .on('renderlet', setLabelsIcons);
-        winRateChart.render();
+            .on('renderlet', setRoleIcons);
+        rolePopChart.render();
     });
-    function setLabelsIcons(chart) {
-        //LABEL AND ICON
+    function setRoleIcons(chart) {
         var barsData = [];
         var bars = chart.selectAll('.bar').each(function (d) { barsData.push(d); });
         //Remove old values (if found)
@@ -106,7 +103,7 @@ function setup() {
             gLabels
                 .append('svg:image')
                 .attr({
-                    'xlink:href': 'static/images/Champions_Icons/' + barsData[i].data.key + 'Square.png',
+                    'xlink:href': 'static/images/Lanes_Icons/' + barsData[i].data.key + '.png',
                     x: 0,
                     y: 0,
                     width: sizeIconChampion,
@@ -117,7 +114,6 @@ function setup() {
                 .attr('text-anchor', 'middle')
                 .attr('fill', 'red')
                 .on('click', function (d) {
-                    console.log(d)
                     d3.select(b).on('click')();
                 });
             //Only create label if bar height is tall enough
@@ -135,4 +131,4 @@ function setup() {
 
 }
 
-export default Winrate;
+export default Lane;

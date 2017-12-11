@@ -2,6 +2,7 @@ import React from 'react';
 import Popular from './components/charts/popular'
 import Winpop from './components/charts/winpop'
 import Winrate from './components/charts/winrate'
+import Lane from './components/charts/lane'
 
 class Home extends React.Component {
   render() {
@@ -18,6 +19,8 @@ class Home extends React.Component {
           <br />
           <br />
           <h1>Visualizações Gerais</h1>
+          <br />
+          <Lane />
           <Winrate />
           <Popular />
           <Winpop />

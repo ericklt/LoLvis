@@ -10,7 +10,7 @@ class Winpop extends React.Component {
     render() {
         return (
             <div>
-                <h4> Popularity By Win Rate</h4>
+                <h3> Popularity By Win Rate</h3>
                 <div id="win-pop-scater"></div>
                 <div id="tooltip" className="hidden">
                     <p><b /><span id="name-scatter"></span></p>

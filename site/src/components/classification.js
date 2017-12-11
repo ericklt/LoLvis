@@ -64,6 +64,7 @@ function setup() {
         var actualColumn = "winrate";
         dataTable.width(800)
             .height(800)
+            .size(202)
             .dimension(championDim)
             .group(function(d){return "Stats";})
             .columns([
