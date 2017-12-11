@@ -42,8 +42,7 @@ function setup() {
         data.forEach(d => d.pop = d.playRate*100);
 
         data = filterData(data);
-        data.sort((d1, d2) => d2.pop - d1.pop);
-        data = data.slice(0, 10);
+        //data.sort((d1, d2) => d2.pop - d1.pop);
         //criando um crossfilter
         var facts = crossfilter(data);
         var roleDim = facts.dimension(function(d){
@@ -66,8 +65,8 @@ function setup() {
                 return {amount:0,count:0};
             }
         );
-        var top10 = popularityByLan.order(d=> d.amount).top(10);
-        var top10Names = top10.map(d => d.key);
+        var top5 = popularityByLan.order(d=> d.amount).top(5);
+        var top5Names = top5.map(d => d.key);
         //POPULARITY
         rolePopChart
             .width(800)
@@ -76,7 +75,7 @@ function setup() {
             .dimension(roleDim)
             .group(popularityByLan)
             .xUnits(dc.units.ordinal)
-            .x(d3.scale.ordinal().domain(top10Names))
+            .x(d3.scale.ordinal().domain(top5Names))
             .y(d3.scale.linear().domain([0, 40]))
             .xAxisLabel("Champions")
             .yAxisLabel("Popularity (%)")
