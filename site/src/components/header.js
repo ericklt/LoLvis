@@ -8,7 +8,7 @@ class Header extends React.Component {
         <div className="container">
           <div className="navbar-header">
             <div className="navbar-brand">
-              <Link to={'/'}><img src="static/images/logo.png" alt="logo" /></Link>
+              <Link to={'/'}><img src="static/images/logo.png" alt="logo" className="logo-img"/></Link>
             </div>
           </div>
           <nav className="collapse navbar-collapse navbar-right">

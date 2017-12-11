@@ -46,9 +46,23 @@ function setup() {
         //criando um crossfilter
         var facts = crossfilter(data);
         var championDim = facts.dimension(d => d.name);
-        var popularGroup = championDim.group().reduceSum(d => d.pop);
-
-        var top10 = popularGroup.orderNatural().top(10);
+        //var popularGroup = championDim.group().reduceSum(d => d.pop);
+        var popularGroup = championDim.group().reduce(
+            function(v,d){
+                v.amount = (v.amount*v.count + d.pop)/(v.count+1);
+                v.count++;
+                return v;
+            },
+            function(v,d){
+                v.amount = (v.amount*v.count - d.pop)/(v.count-1);
+                v.count--;
+                return v;
+            },
+            function(v,d){
+                return {amount:0,count:0};
+            }
+        );
+        var top10 = popularGroup.order(d=> d.amount).top(10);
         var top10Names = top10.map(d => d.key);
         //POPULARITY
         popularChart
@@ -63,7 +77,11 @@ function setup() {
             .xAxisLabel("Champions")
             .yAxisLabel("Popularity (%)")
             .renderHorizontalGridLines(true)
-            .brushOn(false)
+            //.brushOn(false)
+            .valueAccessor(function (p) {
+                return p.value.amount;
+            })
+            .ordering(function(d) { return d.pop; })
             .gap(gapWinRate)
             .ordinalColors(colorBarchart)
             .on('renderlet', setLabelsIcons);
@@ -104,7 +122,7 @@ function setup() {
             //TEXT LABEL
             gLabels
                 .append("text")
-                .text(Number(barsData[i].data.value).toFixed(1) + "%")
+                .text(Number(barsData[i].data.value.amount).toFixed(1) + "%")
                 .attr('x', +b.getAttribute('x') + (b.getAttribute('width') / 2))
                 .attr('y', +b.getAttribute('y') + 24)
                 .attr('text-anchor', 'middle')

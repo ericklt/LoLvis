@@ -61,6 +61,14 @@ body {
   margin: 10px;
 }
 
+.champ-page {
+  margin-left: 20px;
+}
+
+.champ-page-text {
+  color: rgb(5, 115, 167);
+}
+
 .champ-img {
   width: 150px !important;
   height: auto !important;

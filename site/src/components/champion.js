@@ -23,32 +23,30 @@ class Champion extends React.Component {
   render() {
       let name = this.props.match.params.name;
       return (
-          <div className="container champs-container">
+          <div className="container champs-container champ-page-text">
               <div className="champ-title page-titles">
                   <h1>{name}</h1>
               </div>
               <div className="champs">
-                  <div className="col-md-3 col-sm-3">
+                  <div className="col-md-2 col-sm-2">
                       <img src={"../static/images/Champions_Icons/" + name + "Square.png"} alt="champ_img" />
                   </div>
-                  <div className="col-md-9 col-sm-9">
-                      <div>
-                          <h4 id='lanes-champion'>Lanes: </h4>
-                          <h1 id='lane1-text'/>
-                          <h5 id='lane2-text'/>
-                      </div>
-                  </div>
-                  <div className="col-md-12 col-sm-12">
+                  <div className="col-md-10 col-sm-10">
                       <div className="col-md-4 col-sm-4">
-                          <h4>win rate: </h4>
+                          <h4 id='lanes-champion'>Lanes: </h4>
+                          <h2 id='lane1-text'/>
+                          <h3 id='lane2-text'/>
+                      </div>
+                      <div className="col-md-2 col-sm-2">
+                          <h4>Win Rate: </h4>
                           <h2 id='winrate-text'/>
                       </div>
-                      <div className="col-md-4 col-sm-4">
-                          <h4>pick rate: </h4>
+                      <div className="col-md-2 col-sm-2">
+                          <h4>Pick Rate: </h4>
                           <h2 id='pickrate-text'/>
                       </div>
-                      <div className="col-md-4 col-sm-4">
-                          <h4>ban rate: </h4>
+                      <div className="col-md-2 col-sm-2">
+                          <h4>Ban Rate: </h4>
                           <h2 id='banrate-text'/>
                       </div>
                   </div>

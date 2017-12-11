@@ -67,7 +67,22 @@ function setup() {
         var popMax = popDim.top(1)[0].pop;
 
         var dimScaterplot = facts.dimension(d => [d.pop, d.win, d.name]);
-        var groupScaterplot = dimScaterplot.group();
+        //var groupScaterplot = dimScaterplot.group();
+        var groupScaterplot = dimScaterplot.group().reduce(
+            function(v,d){
+                v.pop = d.pop;
+                v.win = d.win;
+                return v;
+            },
+            function(v,d){
+                v.pop = 0;
+                v.win = 0;
+                return v;
+            },
+            function(v,d){
+                return {pop:0,win:0};
+            }
+        );
         var border = 2;
         winPopScaterPlot.width(700)
             .height(700)
@@ -78,9 +93,17 @@ function setup() {
             .xAxisLabel("Popularity")
             .brushOn(false)
             .clipPadding(10)
+            .renderHorizontalGridLines(true)
+            .renderVerticalGridLines(true)
             .dimension(dimScaterplot)
             .excludedOpacity(0.5)
             .group(groupScaterplot)
+            .keyAccessor(function (p) {
+                return p.value.pop;
+            })
+            .valueAccessor(function (p) {
+                return p.value.win;
+            })
             .symbolSize(8)
             .on('renderlet', setDotsIconScatter);
         winPopScaterPlot.render();
@@ -137,8 +160,10 @@ function setup() {
                     let name = d3.select(this).attr('id');
                     let win = d3.select(this).attr('win');;
                     let pop = d3.select(this).attr('pop');
-                    let x = d3.select(this).attr('x');
-                    let y = d3.select(this).attr('y');
+                    var coordinates = [0, 0];
+                    coordinates = d3.mouse(d3.select("body").node()); // obtém a posição do mouse relativa a this
+                    var x = coordinates[0];
+                    var y = coordinates[1];
                     showTooltip(name, win, pop, x, y);
                 })
                 .on("mouseout", function (d) {
@@ -148,32 +173,21 @@ function setup() {
                         .attr("stroke", "none"); //volta ao valor padrão
                     hideTooltip();
                 });
-            // //Only create label if bar height is tall enough
-            // if (+b.getAttribute('height') < 18) continue;
-            //TEXT LABEL
-            gLabels
-                .append("text")
-                .text(Number(dotsData[i].key[0]).toFixed(1) + "," + Number(dotsData[i].key[1]).toFixed(1))
-                .attr('x', +posData[i][0].split("(")[1])
-                .attr('y', +posData[i][1].split(")")[0] + sizeIcon / 2 + 15)
-                .attr('text-anchor', 'middle')
-                .attr('fill', 'red');
         }
     }
     function showTooltip(name, win, pop, x, y) {
         d3.select("#tooltip")
             .style("left", x + "px")
-            .style("top", y + "px")
-            .select("#win-info-scatter")
-            .text(Number(win).toFixed(1) + "%");
+            .style("top", y + "px");
         d3.select("#tooltip")
-            .style("left", x + "px")
-            .style("top", y + "px")
+            .select("#win-info-scatter")
+            .text(Number(win).toFixed(1)+"%");
+        d3.select("#tooltip")
             .select("#pop-info-scatter")
-            .text(Number(pop).toFixed(1) + "%");
+            .text(Number(pop).toFixed(1)+"%");
         d3.select("#tooltip")
             .select("#name-scatter")
-            .text(name + "");
+            .text(name+"");
         d3.select("#tooltip")
             .classed("hidden", false);
     }

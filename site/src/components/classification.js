@@ -1,6 +1,7 @@
 import React from 'react';
 import crossfilter from 'crossfilter';
 import dc from 'dc';
+import $ from 'jquery';
 var d3 = require('d3');
 
 class Classification extends React.Component {
@@ -15,10 +16,11 @@ class Classification extends React.Component {
                 <table class="table table-hover" id="dc-table-graph">
                     <thead>
                         <tr class="header">
-                            <th>Champion</th>
-                            <th>Win Rate</th>
-                            <th>Popularity</th>
-                            <th>Banishment</th>
+                        <th class="data-table-col" data-col="name">Champion</th>
+                        <th class="data-table-col" data-col="role">Role</th>
+                        <th class="data-table-col order" data-col="winrate">Win Rate</th>
+                        <th class="data-table-col" data-col="popularity">Popularity</th>
+                        <th class="data-table-col" data-col="banishment">Ban</th>
                         </tr>
                     </thead>
                 </table>
@@ -58,19 +60,41 @@ function setup() {
         var facts = crossfilter(data);
         var championDim = facts.dimension(d => [d.name, d.role]);
 
-        dataTable.width(960)
+        var sortAscending = false;
+        var actualColumn = "winrate";
+        dataTable.width(800)
             .height(800)
             .dimension(championDim)
-            .group(d => "Stats")
+            .group(function(d){return "Stats";})
             .columns([
-                d => d.name,
-                d => d.win.toFixed(1)+"%",
-                d => d.pop.toFixed(1)+"%",
-                d => d.ban.toFixed(1)+"%",
-            ])
-            .sortBy(d => d.win)
-            .order(d3.descending);
+              function (d) {return d.name;},
+              function (d) {return d.role;},
+              function (d) {return d.win.toFixed(1)+"%";},
+              function (d) {return d.pop.toFixed(1)+"%";},
+              function (d) {return d.ban.toFixed(1)+"%";},
+              ])
+            .sortBy(function (d) {return d.win;})
+            .order(d3.descending)
         dataTable.render();
+
+        $('#dc-table-graph').on('click', '.data-table-col', function() {
+            var column = $(this).attr("data-col");
+            d3.selectAll(".data-table-col").style("background-color","white");
+            d3.select(this).style("background-color","#8F918E");
+            if(actualColumn===column){
+                sortAscending=!sortAscending;
+            }else{
+                if(column!="name"&&column!="role"){
+                    sortAscending=false;
+                }else{
+                    sortAscending=true;
+                }
+            }
+            actualColumn=column;
+            dataTable.sortBy(d=>d[column])
+                    .order(sortAscending?d3.ascending:d3.descending);
+            dataTable.redraw();
+        });
     });
 
 

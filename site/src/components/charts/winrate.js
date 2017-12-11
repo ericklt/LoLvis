@@ -47,9 +47,27 @@ function setup() {
 
         //criando um crossfilter
         var facts = crossfilter(data);
+
         var championDim = facts.dimension(d => d.name);
-        var winRateGroup = championDim.group().reduceSum(d => d.win)
-        var top10 = winRateGroup.orderNatural().top(10);
+        //var winRateGroup = championDim.group().reduceSum(d => d.win)
+        var champions;
+        var winRateGroup = championDim.group().reduce(
+            function(v,d){
+                v.amount = (v.amount*v.count + d.win)/(v.count+1);
+                v.count++;
+                return v;
+            },
+            function(v,d){
+                v.amount = (v.amount*v.count - d.win)/(v.count-1);
+                v.count--;
+                return v;
+            },
+            function(v,d){
+                champions = []; 
+                return {amount:0,count:0};
+            }
+        );
+        var top10 = winRateGroup.order(d=> d.amount).top(10);
         var top10Names = top10.map(d => d.key);
         //WIN RATE
         winRateChart
@@ -57,24 +75,25 @@ function setup() {
             .height(400)
             .margins({ top: 50, right: 50, bottom: 50, left: 50 })
             .dimension(championDim)
-            .group(winRateGroup)
             .xUnits(dc.units.ordinal)
+            //.x(d3.scale.ordinal().domain(champions))
             .x(d3.scale.ordinal().domain(top10Names))
             .y(d3.scale.linear().domain([0, 100]))
             .xAxisLabel("Champions")
             .yAxisLabel("Win Rate (%)")
             .renderHorizontalGridLines(true)
-            .brushOn(false)
+            //.brushOn(false)
+            .group(winRateGroup)
+            .valueAccessor(function (p) {
+                return p.value.amount;
+            })
+            .ordering(function(d) { return d.win; })
             .gap(gapWinRate)
             .ordinalColors(colorBarchart)
             .on('renderlet', setLabelsIcons);
         winRateChart.render();
     });
     function setLabelsIcons(chart) {
-        //ON CLICK BAR
-        chart.selectAll('rect').on("click", function (d) {
-            console.log("go to page of champion", d);
-        });
         //LABEL AND ICON
         var barsData = [];
         var bars = chart.selectAll('.bar').each(function (d) { barsData.push(d); });
@@ -98,6 +117,7 @@ function setup() {
                 .attr('text-anchor', 'middle')
                 .attr('fill', 'red')
                 .on('click', function (d) {
+                    console.log(d)
                     d3.select(b).on('click')();
                 });
             //Only create label if bar height is tall enough
@@ -105,7 +125,7 @@ function setup() {
             //TEXT LABEL
             gLabels
                 .append("text")
-                .text(Number(barsData[i].data.value).toFixed(1) + "%")
+                .text(Number(barsData[i].data.value.amount).toFixed(1) + "%")
                 .attr('x', +b.getAttribute('x') + (b.getAttribute('width') / 2))
                 .attr('y', +b.getAttribute('y') + 24)
                 .attr('text-anchor', 'middle')
