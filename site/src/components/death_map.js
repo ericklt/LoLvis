@@ -25,8 +25,6 @@ class DeathMap extends React.Component {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
     this.loadDeaths();
-
-    $(".btn-group > .btn").click(() => $(this).addClass("active").siblings().removeClass("active"));
   }
 
   loadDeaths() {
@@ -57,12 +55,12 @@ class DeathMap extends React.Component {
             <div id='animation-container'>
               <div id="role-selection-container">
                 <div className="btn-group">
-                  <button type="button" id="all-btn" className="btn btn-default active" onClick={()=> onLaneSelection('all')}>ALL</button>
-                  <button type="button" id="top-btn" className="btn btn-default" onClick={()=> onLaneSelection('top')}>TOP</button>
-                  <button type="button" id="jungle-btn" className="btn btn-default" onClick={()=> onLaneSelection('jungle')}>JUNGLE</button>
-                  <button type="button" id="mid-btn" className="btn btn-default" onClick={()=> onLaneSelection('mid')}>MID</button>
-                  <button type="button" id="adc-btn" className="btn btn-default" onClick={()=> onLaneSelection('adc')}>ADC</button>
-                  <button type="button" id="supp-btn" className="btn btn-default" onClick={()=> onLaneSelection('supp')}>SUPPORT</button>
+                  <button type="button" id="all-btn" className="btn btn-default filter-btn active" onClick={()=> onLaneSelection('all-btn', 'all')}>ALL</button>
+                  <button type="button" id="top-btn" className="btn btn-default filter-btn" onClick={()=> onLaneSelection('top-btn', 'top')}>TOP</button>
+                  <button type="button" id="jungle-btn" className="btn btn-default filter-btn" onClick={()=> onLaneSelection('jungle-btn', 'jungle')}>JUNGLE</button>
+                  <button type="button" id="mid-btn" className="btn btn-default filter-btn" onClick={()=> onLaneSelection('mid-btn', 'mid')}>MID</button>
+                  <button type="button" id="adc-btn" className="btn btn-default filter-btn" onClick={()=> onLaneSelection('adc-btn', 'adc')}>ADC</button>
+                  <button type="button" id="supp-btn" className="btn btn-default filter-btn" onClick={()=> onLaneSelection('supp-btn', 'supp')}>SUPPORT</button>
                 </div>
               </div>
               <div id='canvas-container'>
@@ -146,9 +144,10 @@ function filterDeaths() {
   updateDeaths();
 }
 
-function onLaneSelection(lane) {
-  deathFilter = lane;
-  filterDeaths();
+function onLaneSelection(id, lane) {
+    $('#' + id).addClass("active").siblings().removeClass("active");
+    deathFilter = lane;
+    filterDeaths();
 }
 
 function onSlideChange() {
