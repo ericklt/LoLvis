@@ -18,9 +18,9 @@ class Classification extends React.Component {
                         <tr class="header">
                         <th class="data-table-col" data-col="name">Champion</th>
                         <th class="data-table-col" data-col="role">Role</th>
-                        <th class="data-table-col order" data-col="winrate">Win Rate</th>
-                        <th class="data-table-col" data-col="popularity">Popularity</th>
-                        <th class="data-table-col" data-col="banishment">Ban</th>
+                        <th class="data-table-col order" data-col="win">Win Rate</th>
+                        <th class="data-table-col" data-col="pop">Popularity</th>
+                        <th class="data-table-col" data-col="ban">Ban</th>
                         </tr>
                     </thead>
                 </table>
